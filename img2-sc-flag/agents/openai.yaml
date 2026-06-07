@@ -1,0 +1,4 @@
+interface:
+  display_name: "img2-sc-flag"
+  short_description: "根据国旗参考图轻微随机调色，并保持尺寸圆角透明度。"
+  default_prompt: "使用 $img2-sc-flag 根据参考图生成同尺寸、同圆角和同透明度的国旗轻微调色版本。"

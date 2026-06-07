@@ -1,4 +1,0 @@
-interface:
-  display_name: "GPT-Image-2 结构化图像生成"
-  short_description: "将文本、参考图或参考图+文本转成 JSON，用 gpt-image-2 生成图像并按需输出透明 PNG。"
-  default_prompt: "使用 $image2-reference-regenerate 判定输入模式：纯文本时将文本描述提炼为结构化 JSON；参考图时先提炼参考图 JSON；参考图+文本时从文本中抽取风格、色彩、外形、主体、尺寸、透明要求并合并/替换到参考图 JSON。随后调用 image_generation 工具并指定 gpt-image-2 生成新图；如果需要透明 PNG，先本地去绿幕输出真实透明 PNG，再按明确目标尺寸缩放。"

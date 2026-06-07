@@ -6,9 +6,9 @@ It is intended for Git-based handoff across machines or sessions. Do not rely on
 
 ## Key Files
 
-- `image2-reference-regenerate/SKILL.md`: main Chinese skill instructions.
-- `image2-reference-regenerate/agents/openai.yaml`: agent entry metadata and default prompt.
-- `image2-reference-regenerate/scripts/`: local PNG post-processing helpers.
+- `img2-sc/SKILL.md`: main Chinese skill instructions for `img2-sc-all`.
+- `img2-sc/agents/openai.yaml`: agent entry metadata and default prompt.
+- `img2-sc/scripts/`: local PNG post-processing helpers.
 - `TASK_CONTEXT.md`: concise current task state and decisions.
 - `ARTIFACTS.md`: generated image artifact manifest.
 

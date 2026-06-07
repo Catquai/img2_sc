@@ -1,0 +1,4 @@
+interface:
+  display_name: "GPT Image 2 App Icon"
+  short_description: "Generate and recreate mobile App primary icons"
+  default_prompt: "Use $img2-sc-app-icon to generate a polished mobile App primary icon from my text or reference image."
