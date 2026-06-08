@@ -57,6 +57,14 @@ Important current rules:
 
 The host `image_generation` tool can hit `TooManyRequests` rate limits. Local Garden/API mode is currently unavailable unless `OPENAI_API_KEY` and `ENABLE_GARDEN_IMAGEGEN` are configured.
 
+## Conversation Sync Log
+
+- 2026-06-08: Local workspace `F:\image` was synchronized from `https://github.com/Catquai/img2_sc.git`.
+- Current local branch is `main`, tracking `origin/main`.
+- Latest synchronized commit is `a2fc0e2 Sync img2_sc project artifacts`.
+- The chat window itself is not portable state. Continue handoff from `README.md`, this `TASK_CONTEXT.md`, `ARTIFACTS.md`, and the skill directories under `img2-sc*`.
+- The previously used `image2-reference-regenerate` skill directory has been replaced by the reorganized skill set: `img2-sc`, `img2-sc-app-icon`, `img2-sc-flag`, and `img2-sc-frame`.
+
 ## Local Scripts
 
 - `img2-sc/scripts/match_reference_size.ps1`: read or match image dimensions.
