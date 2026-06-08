@@ -4,6 +4,7 @@ This file lists selected final image outputs that are useful to sync through Git
 
 ## Final Outputs
 
+- `test-img/cleanup_icon_generated_512x512.png`: cleanup feature app icon, generated and resized to 512x512.
 - `test-img/ic_app_manager_40_gpt_image_2_96x96.png`: final app manager icon variant, 96x96.
 - `test-img/ic_app_video_40_gpt_image_2_96x96.png`: final video icon variant, 96x96, verified alpha.
 - `test-img/ic_compare_auto_regenerated_159x160.png`: compare/auto icon variant.
@@ -30,6 +31,8 @@ This file lists selected final image outputs that are useful to sync through Git
 
 ## Current Diagnostic Notes
 
+- `app-icon-layer-output/shield-broom-cleaner-512/`: split-layer cleanup/shield/broom app-icon output set kept for workflow review.
+- `app-icon-layer-output/broom-full-set-512/`: split-layer broom app-icon output set kept for workflow review.
 - `test-img/app-icon-layer-output/rejected_jsonsplit_bad_mask/`: rejected `img2-sc-app-icon` samples produced by a local rough-mask fallback. These failed because the foreground was not a generated keyed subject variant, the background was a placeholder gradient, and the white negative icon became a filled blob without internal negative-space structure.
 - `test-img/app-icon-layer-output/folder_upload/`: current app-icon layer-split diagnostic set for the folder upload icon.
   - `folder_upload_composite_source.png`: accepted composite source used to diagnose foreground consistency.

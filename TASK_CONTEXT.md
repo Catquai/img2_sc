@@ -27,6 +27,11 @@ The skills should support:
 
 ## Current Focus
 
+### 2026-06-08 Sync Note
+
+- Generated a cleanup feature app icon and saved the final normalized output as `test-img/cleanup_icon_generated_512x512.png`.
+- Root `app-icon-layer-output/` currently contains split-layer cleanup/broom app-icon workflow outputs that should be synced for review with the rest of the project state.
+
 ### `img2-sc-app-icon`
 
 This skill handles mobile App primary icon generation and split-layer outputs.
