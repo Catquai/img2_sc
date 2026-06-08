@@ -1,6 +1,6 @@
 # Artifact Manifest
 
-This file lists selected final image outputs that are useful to sync through Git. Large intermediate green-screen images and large transparent intermediates are excluded by `.gitignore`.
+This file lists selected final image outputs that are useful to sync through Git. Large intermediate green-screen images, transparent intermediates, and rejected diagnostic samples should not be promoted as final artifacts.
 
 ## Final Outputs
 
@@ -26,3 +26,22 @@ This file lists selected final image outputs that are useful to sync through Git
 - `*_green_*x*.png`
 - `*_transparent_large.png`
 - Very large raw generation files unless explicitly promoted to a final artifact.
+- `test-img/**/rejected_*`: failed or diagnostic samples. Keep them only when useful for debugging, never treat them as valid deliverables.
+
+## Current Diagnostic Notes
+
+- `test-img/app-icon-layer-output/rejected_jsonsplit_bad_mask/`: rejected `img2-sc-app-icon` samples produced by a local rough-mask fallback. These failed because the foreground was not a generated keyed subject variant, the background was a placeholder gradient, and the white negative icon became a filled blob without internal negative-space structure.
+
+## Git Sync Rule
+
+Sync human-readable state and useful artifacts through Git:
+
+- `TASK_CONTEXT.md`
+- `ARTIFACTS.md`
+- `README.md`
+- `img2-sc*/SKILL.md`
+- `img2-sc*/references/*.md`
+- `img2-sc*/scripts/*.ps1`
+- selected final images in `test-img/`
+
+Do not try to sync a Codex/chat window as task state.
