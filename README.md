@@ -7,8 +7,13 @@ It is intended for Git-based handoff across machines or sessions. Do not rely on
 ## Key Files
 
 - `img2-sc/SKILL.md`: main Chinese skill instructions for `img2-sc-all`.
-- `img2-sc/agents/openai.yaml`: agent entry metadata and default prompt.
-- `img2-sc/scripts/`: local PNG post-processing helpers.
+- `img2-sc-app-icon/SKILL.md`: App primary icon and split-layer workflow.
+- `img2-sc-flag/SKILL.md`: flag/icon recolor and regeneration workflow.
+- `img2-sc-frame/SKILL.md`: frame animation and sprite recolor workflow.
+- `img2-sc*/agents/openai.yaml`: agent entry metadata and default prompts.
+- `img2-sc*/scripts/`: local PNG post-processing helpers.
+- `img2-sc*/references/`: focused reference rules and schemas.
+- `test-img/`: selected synced test outputs and diagnostic samples.
 - `TASK_CONTEXT.md`: concise current task state and decisions.
 - `ARTIFACTS.md`: generated image artifact manifest.
 

@@ -4,7 +4,7 @@ This repository is the portable task state. Sync this file, `ARTIFACTS.md`, the 
 
 ## Workspace
 
-- Current workspace: `F:\img2-sc`
+- Current workspace: `E:\WORK\skill\img2_sc`
 - Primary branch: `main`
 - Skill directories:
   - `img2-sc`
