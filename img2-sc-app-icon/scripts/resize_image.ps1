@@ -7,6 +7,7 @@ param(
     [int]$Height = 512,
     [ValidateSet("cover", "contain", "stretch")]
     [string]$Fit = "cover",
+    [int]$ScalePercent = 100,
     [string]$Background = "#00000000"
 )
 
@@ -23,6 +24,10 @@ function Convert-HexColor {
     $b = [Convert]::ToInt32($hex.Substring(4, 2), 16)
     $a = if ($hex.Length -eq 8) { [Convert]::ToInt32($hex.Substring(6, 2), 16) } else { 255 }
     return [System.Drawing.Color]::FromArgb($a, $r, $g, $b)
+}
+
+if ($ScalePercent -le 0 -or $ScalePercent -gt 1000) {
+    throw "ScalePercent must be between 1 and 1000."
 }
 
 $sourcePath = (Resolve-Path -LiteralPath $Source).Path
@@ -48,6 +53,7 @@ try {
         $scaleX = $Width / $sourceImage.Width
         $scaleY = $Height / $sourceImage.Height
         $scale = if ($Fit -eq "cover") { [Math]::Max($scaleX, $scaleY) } else { [Math]::Min($scaleX, $scaleY) }
+        $scale = $scale * ($ScalePercent / 100.0)
         $drawWidth = [Math]::Round($sourceImage.Width * $scale)
         $drawHeight = [Math]::Round($sourceImage.Height * $scale)
         $x = [Math]::Round(($Width - $drawWidth) / 2)
