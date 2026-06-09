@@ -108,9 +108,11 @@ powershell -ExecutionPolicy Bypass -File scripts/match_reference_size.ps1 -Info 
 
 ### 4. 可选双层拆分输出
 
-当用户要求拆分前景层和背景层时，将 `output.mode` 设为 `foreground_background_pair`，并在生成前建立 `layer_split`。拆分输出不再从合层图裁切主体，而是从结构化 JSON 中分别提取主要元素和背景信息，按同一套身份、风格、光照和变体参数生成可组合的独立层。
+当用户要求拆分前景层和背景层时，将 `output.mode` 设为 `foreground_background_pair`，并在生成前建立 `layer_split`。如果已经存在本次任务的未拆分完成图/已接受合成图 `composite_source`，拆分层必须以该图为视觉锁定目标：前景层的主体造型、颜色、局部徽标、方向、光照、材质和遮挡关系必须匹配 `composite_source`，不得重新生成一个相似但不同的前景变体。只有在没有已接受合成图、且用户明确要求直接生成可组合双层变体时，才允许从结构化 JSON 中分别生成独立前景与背景。
 
-前景层必须来自结构化 JSON 中的 `foreground_elements` / 主要元素定义，生成时使用均匀纯色绿幕/键幕背景，得到 `foreground_keyed_source`。背景层必须来自结构化 JSON 中的 `background_elements` / 背景信息，生成新的变体背景层，不能包含主要元素、主体残影或主体形状空洞。
+拆分现有完成图时，不得把 `reference_only` 的变化幅度规则再次应用到前景层。变化只允许发生在最初生成未拆分完成图的阶段；一旦完成图被选定，后续 `foreground_keyed_source` 是“同一主体的键幕复刻/拆层”，不是新的变体。
+
+前景层必须来自结构化 JSON 中的 `foreground_elements` / 主要元素定义。若存在 `composite_source`，必须先从完成图提取并锁定 `foreground_visual_lock`，至少记录主体整体配色、文件夹/容器颜色、内壁颜色、上传箭头颜色与方向、圆形徽章颜色、卡片颜色、卡片图形方向、光照方向、投影强度和遮挡顺序；生成 `foreground_keyed_source` 时只能把背景替换为均匀纯色键幕，不得改变这些锁定项。背景层必须来自结构化 JSON 中的 `background_elements` / 背景信息，生成或补全为完整背景层，不能包含主要元素、主体残影或主体形状空洞。
 
 生成前必须核对 `foreground_elements` 与 `background_elements` 没有重复元素。若发现同一 sparkle、bubble、glint、sweep、shadow、badge、主件或辅助件同时被列入前景与背景，必须先修正 JSON 再生成。
 
@@ -124,7 +126,8 @@ powershell -ExecutionPolicy Bypass -File scripts/match_reference_size.ps1 -Info 
 双层输出必须产出三类文件：带绿幕主体变体层、透明前景图、完整背景图；如果要求负形图标，再产出白色负形透明图标。
 
 1. **前景层**
-   - 必须从结构化 JSON 中提取主要元素、主辅关系、姿态、材质、边缘、高光、阴影和点缀规则，生成一个带绿幕/键幕背景的主体变体层 `foreground_keyed_source`。
+   - 必须从结构化 JSON 中提取主要元素、主辅关系、姿态、材质、边缘、高光、阴影和点缀规则。若存在 `composite_source`，必须复刻完成图中的前景主体并只替换背景为键幕；若不存在 `composite_source`，才生成一个带绿幕/键幕背景的主体变体层 `foreground_keyed_source`。
+   - 有 `composite_source` 时，`foreground_keyed_source` 必须与完成图前景保持视觉一致：整体色彩、文件夹/容器色、内壁色、上传箭头颜色和方向、圆形徽章颜色、卡片内容、卡片倾角、主体比例、遮挡顺序、光照方向和材质高光不得发生可见变化。若出现绿色箭头替代白色箭头、箭头方向/图形不同、文件夹色温漂移、卡片颜色变化或主体重排，判定为拆分失败。
    - `foreground_keyed_source` 必须是干净的主体变体渲染：主体边缘连续、无硬切多边形边、无原背景色块、无棋盘格、无矩形残片、无被 mask 吃掉的部件；绿幕/键幕必须只出现在背景区域。
    - `foreground_keyed_source` 中主要元素内部不得把键幕色当作占位空洞。文件夹开口、盒内空间、卡片之间的可见缝隙、徽章内凹槽、工具部件间隙等，只要不是 JSON 明确标记为透明负形/真实镂空，就必须由主体自己的内侧颜色、背面颜色、阴影或遮挡后的合理内容填满。生成提示中必须明确：key color may appear only outside the foreground subject, never inside subject holes or folder/card openings unless explicitly declared transparent.
    - 键色不要固定使用绿色；根据主体及半透明元素选择色彩距离最大的键色。推荐键色：蓝色/青色主体优先 `#ff00ff` 洋红幕；紫红/暖色主体优先 `#00ff00` 绿幕；绿色主体优先 `#ff00ff` 或 `#0000ff`；只有主体不存在相近颜色时才使用对应键色。若用户明确要求“绿幕”，优先使用 `#00ff00`，但必须检查主体中没有大面积近似绿色。
@@ -152,9 +155,10 @@ powershell -ExecutionPolicy Bypass -File scripts/match_reference_size.ps1 -Info 
 双层后处理顺序不可颠倒：
 
 1. 建立结构化 JSON，明确 `foreground_elements`、`background_elements`、`composition_variation`、`decorative_variation` 和输出尺寸。
-2. 前景：从 JSON 提取主要元素 -> 生成带绿幕/键幕的主体变体层 `foreground_keyed_source` -> 原始尺寸本地去幕/清理键色污染并输出透明 PNG -> 将透明 PNG 的主要元素缩小至 70% 并居中放入透明画布 -> 缩放/规范到 `512×512` -> 验证尺寸和 alpha。不得先缩放 keyed source 再去幕。
-3. 背景：从 JSON 提取背景信息 -> 生成新的变体背景层 -> 缩放/规范到 `512×512` -> 验证尺寸和不透明度。
-4. 两层验证尺寸与透明度 -> 生成合成预览。
+2. 若已有 `composite_source`：先建立 `foreground_visual_lock`，把完成图中前景主体的颜色、方向、徽标、比例、遮挡和光照锁定；后续前景/负形都基于这个锁定状态。
+3. 前景：从 JSON 提取主要元素和视觉锁定项 -> 生成/编辑为带绿幕/键幕的同一前景主体 `foreground_keyed_source` -> 原始尺寸本地去幕/清理键色污染并输出透明 PNG -> 将透明 PNG 的主要元素缩小至 70% 并居中放入透明画布 -> 缩放/规范到 `512×512` -> 验证尺寸、alpha 和与 `composite_source` 的前景一致性。不得先缩放 keyed source 再去幕。
+4. 背景：从 JSON 提取背景信息 -> 若拆分现有完成图，则补全/重建与完成图风格、光照和装饰一致的完整背景；若无完成图，则生成新的变体背景层 -> 缩放/规范到 `512×512` -> 验证尺寸和不透明度。
+5. 两层验证尺寸、透明度和视觉一致性 -> 生成合成预览；若合成预览与 `composite_source` 的主体颜色、方向或徽标不同，判定失败。
 
 ### 5. 可选极简白色负形透明图标
 
@@ -252,7 +256,9 @@ Do not create UI screens, icon grids, device mockups, or explanatory text.
 双层输出时分别使用以下生成提示约束：
 
 ```text
-Foreground pass: extract the declared primary foreground elements from the structured JSON and render a new subject variant on a perfectly uniform selected chroma-key background. Use the exact key color specified in layer_split.key_color. Do not render any background scenery. The key color may appear only in background gaps outside the declared foreground elements. Do not use the key color as a placeholder inside subject materials, folder openings, card backs, badge grooves, or tool part gaps unless JSON explicitly marks that region as transparent. Preserve subject identity, required traits, semantic orientation, material readability, and decorative rules.
+Foreground pass when composite_source exists: use the accepted composite_source as the visual lock. Recreate the exact same foreground subject on a perfectly uniform selected chroma-key background. Match the composite foreground's colors, upload arrow direction and color, circular badge color, folder/container color, card contents, card angles, proportions, lighting direction, material highlights, shadows, overlap order, and local details. Do not create a new variant. Use the exact key color specified in layer_split.key_color. Do not render background scenery. The key color may appear only in background gaps outside the declared foreground elements. Do not use the key color as a placeholder inside subject materials, folder openings, card backs, badge grooves, or tool part gaps unless JSON explicitly marks that region as transparent.
+
+Foreground pass when no composite_source exists: extract the declared primary foreground elements from the structured JSON and render a new subject variant on a perfectly uniform selected chroma-key background. Use the exact key color specified in layer_split.key_color. Do not render any background scenery. The key color may appear only in background gaps outside the declared foreground elements. Do not use the key color as a placeholder inside subject materials, folder openings, card backs, badge grooves, or tool part gaps unless JSON explicitly marks that region as transparent. Preserve subject identity, required traits, semantic orientation, material readability, and decorative rules.
 
 Background pass: extract the background description from the structured JSON and render a new complete fully opaque background variant. Do not render the primary subject, its silhouette, ghost, cutout hole, or duplicated foreground decorations.
 
@@ -325,7 +331,8 @@ powershell -ExecutionPolicy Bypass -File scripts/match_reference_size.ps1 -Refer
 - 不含意外文字、水印、设备框、UI 页面或额外 icon。
 - 双层输出时，前景层具有真实透明像素，背景层完全不透明，两层尺寸完全一致。
 - 双层输出时，前景层和背景层必须严格遵守 JSON 元素划分；同一元素不得同时出现在两层。若前景已包含星光、白色炫光、扫光碎片、徽标或主体附着效果，背景层重复出现即判定失败。
-- 双层输出时，前景层必须来自结构化 JSON 的主要元素定义，并能说明 `structured_json.foreground_elements -> foreground_keyed_source -> local_key_removed_alpha -> foreground_70pct_512` 的来源链路。
+- 双层输出时，前景层必须来自结构化 JSON 的主要元素定义；若存在 `composite_source`，还必须来自完成图的视觉锁定项，并能说明 `composite_source + structured_json.foreground_elements + foreground_visual_lock -> foreground_keyed_source -> local_key_removed_alpha -> foreground_70pct_512` 的来源链路。
+- 若存在 `composite_source`，前景层与未拆分图的主体不得出现整体色彩、文件夹圆形上传徽标、上传箭头颜色/方向、卡片图形、主体比例、重叠关系或光照方向的可见差异；出现任一项即判定为使用了独立变体而非拆分，必须重做前景层。
 - 前景必须证明是先在原始/工作分辨率去幕，再将主要元素缩小至 70% 并输出 `512×512` 透明 PNG；半透明高光、发光、抗锯齿边缘和阴影不得残留明显键色。
 - 前景主要元素内部不得出现由键幕误删导致的透明洞。文件夹开口、盒内区域、卡片背后、箭头内侧、徽章凹槽等未被 JSON 标记为透明负形的区域必须有合理填色或内侧阴影；出现内部透明空洞即判定失败。
 - 前景不得出现手绘多边形 mask 痕迹、原参考图背景残片、矩形色块、主体断裂、主体缺件、明显锯齿硬边或局部被错误透明化；出现任一项即失败。
@@ -335,6 +342,7 @@ powershell -ExecutionPolicy Bypass -File scripts/match_reference_size.ps1 -Refer
 - 极简白色负形图标基于带绿幕前景层生成，先本地去幕变成透明背景，再将整张图像画布缩放到 `72×72`；只包含纯白可见像素和真实透明像素；无描边、阴影、渐变、灰色或其他颜色；负形孔洞清晰且主体身份可识别。
 - 极简白色负形图标不得只是前景 alpha 的白色实心轮廓；必须包含足够大的透明负形孔洞/分隔结构，并保留可识别的内部特征。若看起来像白色土豆块、主体身份不可读、盾牌/工具/刷毛等内部身份结构缺失，判定失败。
 - 极简白色负形图标不得在最终输出前额外缩小主要元素。若对主体做 trim、thumbnail、ScalePercent 或额外留白，导致主体比整张 `72×72` 画布明显偏小，判定失败。
+- 极简白色负形图标不得含有触碰画布边缘的白色噪声或源图残留。若原始负形 alpha 的 bbox 因边缘噪声扩展到整张画布，必须先删除与画布边缘连通的可见噪声，再将整张干净画布缩放到 `72×72`。
 
 任一 `failure_criteria` 命中即判定失败，重新生成或后处理，不能把不合格结果直接交付。
 

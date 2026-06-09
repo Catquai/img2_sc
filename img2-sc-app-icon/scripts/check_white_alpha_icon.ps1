@@ -2,7 +2,8 @@ param(
     [Parameter(Mandatory = $true)]
     [string]$Path,
     [ValidateRange(1, 2147483647)]
-    [int]$SampleStep = 1
+    [int]$SampleStep = 1,
+    [switch]$AllowEdgePixels
 )
 
 Add-Type -AssemblyName System.Drawing
@@ -12,6 +13,7 @@ $image = [System.Drawing.Bitmap]::FromFile($resolved.Path)
 $transparentCount = 0
 $visibleCount = 0
 $nonWhiteVisibleCount = 0
+$edgeVisibleCount = 0
 
 try {
     for ($y = 0; $y -lt $image.Height; $y += $SampleStep) {
@@ -25,6 +27,9 @@ try {
                 if ($pixel.R -ne 255 -or $pixel.G -ne 255 -or $pixel.B -ne 255) {
                     $nonWhiteVisibleCount++
                 }
+                if ($x -eq 0 -or $y -eq 0 -or $x -eq ($image.Width - 1) -or $y -eq ($image.Height - 1)) {
+                    $edgeVisibleCount++
+                }
             }
         }
     }
@@ -33,8 +38,8 @@ finally {
     $image.Dispose()
 }
 
-Write-Output "$($resolved.Path): transparent_pixels=$transparentCount, visible_pixels=$visibleCount, non_white_visible_pixels=$nonWhiteVisibleCount, sample_step=$SampleStep"
+Write-Output "$($resolved.Path): transparent_pixels=$transparentCount, visible_pixels=$visibleCount, non_white_visible_pixels=$nonWhiteVisibleCount, edge_visible_pixels=$edgeVisibleCount, sample_step=$SampleStep"
 
-if ($transparentCount -eq 0 -or $visibleCount -eq 0 -or $nonWhiteVisibleCount -gt 0) {
+if ($transparentCount -eq 0 -or $visibleCount -eq 0 -or $nonWhiteVisibleCount -gt 0 -or (-not $AllowEdgePixels -and $edgeVisibleCount -gt 0)) {
     exit 2
 }

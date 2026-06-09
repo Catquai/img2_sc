@@ -4,7 +4,7 @@ This repository is the portable task state. Sync this file, `ARTIFACTS.md`, the 
 
 ## Workspace
 
-- Current workspace: `E:\WORK\skill\img2_sc`
+- Current workspace: `F:\img2-sc`
 - Primary branch: `main`
 - Skill directories:
   - `img2-sc`
@@ -34,7 +34,9 @@ This skill handles mobile App primary icon generation and split-layer outputs.
 Current split-layer rule:
 
 - Build structured JSON first.
-- Extract `foreground_elements` from JSON and generate a keyed foreground subject variant.
+- If an accepted composite exists, treat it as `composite_source` and create a `foreground_visual_lock` before splitting.
+- When `composite_source` exists, the keyed foreground must match the composite foreground's colors, upload arrow direction/color, badge color, card contents, proportions, lighting, material highlights, and overlap order. It is a same-subject keyed recreation, not a new variant.
+- Only generate an independent keyed foreground variant when there is no accepted composite source and the user is requesting a directly generated layer pair.
 - Remove the key screen locally before resizing.
 - Scale the main foreground subject to about 70% on a transparent canvas.
 - Output the foreground layer as `512x512` transparent PNG.
@@ -42,13 +44,22 @@ Current split-layer rule:
 - Output the background layer as `512x512`.
 - Generate the white negative icon from the keyed foreground reference, not from a crude local mask.
 - Remove key screen locally and output the white negative icon as `72x72` transparent PNG.
+- Reject white negative icons with visible edge-touching noise unless explicitly allowed by the checker.
 
 Rejected behavior:
 
 - Do not use local rough masks, hand-drawn polygon mattes, simple reference cutouts, or rotate/scale transforms as substitutes for generated keyed foreground variants.
+- Do not split an accepted composite by independently regenerating a similar foreground variant. This caused the folder-upload diagnostic mismatch where the composite had a white upload arrow but the keyed foreground regenerated a green arrow.
 - Do not deliver placeholder gradients or random circles as designed backgrounds.
 - Do not deliver white filled alpha silhouettes as negative icons. They must include readable internal negative-space structure.
 - If image generation is blocked or unavailable, stop and report the block rather than delivering local fallback assets.
+
+Recent folder-upload diagnostic outcome:
+
+- `test-img/app-icon-layer-output/folder_upload/folder_upload_composite_source.png` and `folder_upload_foreground_keyed_source.png` were generated in separate passes, so the foreground changed color and badge arrow styling before any local post-processing.
+- The skill and schema now require `consistency_target: accepted_composite` when `composite_source` exists, with `foreground_visual_lock` fields for palette, badge, arrow, card, overlap, lighting, and material details.
+- The purple key-like foreground gap issue was fixed by removing disconnected key-like pixels unless JSON declares them as subject material.
+- The white negative icon was fixed by deleting edge-connected white noise before scaling the full canvas to `72x72`; `check_white_alpha_icon.ps1` now reports and fails on edge-visible pixels by default.
 
 ### `img2-sc-frame`
 
@@ -91,6 +102,7 @@ Important scripts are under the matching skill directories.
 `img2-sc-app-icon/scripts` includes:
 
 - `remove_green_screen.ps1`
+- `clean_keyed_opaque_foreground.py`
 - `resize_image.ps1`
 - `check_png_transparency.ps1`
 - `normalize_white_alpha_icon.ps1`

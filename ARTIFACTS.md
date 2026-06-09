@@ -31,6 +31,22 @@ This file lists selected final image outputs that are useful to sync through Git
 ## Current Diagnostic Notes
 
 - `test-img/app-icon-layer-output/rejected_jsonsplit_bad_mask/`: rejected `img2-sc-app-icon` samples produced by a local rough-mask fallback. These failed because the foreground was not a generated keyed subject variant, the background was a placeholder gradient, and the white negative icon became a filled blob without internal negative-space structure.
+- `test-img/app-icon-layer-output/folder_upload/`: current app-icon layer-split diagnostic set for the folder upload icon.
+  - `folder_upload_composite_source.png`: accepted composite source used to diagnose foreground consistency.
+  - `folder_upload_foreground_keyed_source.png`: keyed foreground generation that exposed the mismatch; it changed the circular upload badge arrow color/style relative to the composite, so it is diagnostic rather than final-approved split output.
+  - `folder_upload_foreground_70pct_512.png`: cleaned transparent foreground layer after key-like purple removal; useful for alpha cleanup regression checks.
+  - `folder_upload_background_512.png`: opaque generated background layer used for recomposition checks.
+  - `folder_upload_composite_preview_512.png`: recomposed preview from current foreground/background layers; useful for validation, but foreground consistency issue means it should not be treated as an approved split of `folder_upload_composite_source.png`.
+  - `folder_upload_white_negative_72.png`: final checked 72x72 white negative icon; pure white visible pixels, true alpha, no visible edge noise.
+  - `folder_upload_white_negative_preview_dark_pillow.png`: dark preview for visually inspecting the 72x72 white negative icon.
+  - `folder_upload_white_negative_normalized_edge_clean.png`: cleaned normalized negative source after removing edge-connected white noise, retained as a small diagnostic artifact.
+  - `folder_upload_white_negative_72_zoom8.png`: enlarged nearest-neighbor preview for reviewing internal negative-space structure.
+
+Latest folder-upload conclusion:
+
+- The foreground mismatch happened before post-processing: `foreground_keyed_source` was an independent second generation rather than a visual-lock recreation of `composite_source`.
+- `img2-sc-app-icon` now requires `foreground_visual_lock` whenever an accepted `composite_source` exists, so the foreground pass must match the composite foreground's color, badge arrow, direction, card contents, lighting, and overlap.
+- `check_white_alpha_icon.ps1` now reports `edge_visible_pixels` and fails by default when white negative icons contain visible edge-touching noise.
 
 ## Git Sync Rule
 
@@ -42,6 +58,7 @@ Sync human-readable state and useful artifacts through Git:
 - `img2-sc*/SKILL.md`
 - `img2-sc*/references/*.md`
 - `img2-sc*/scripts/*.ps1`
+- `img2-sc*/scripts/*.py`
 - selected final images in `test-img/`
 
 Do not try to sync a Codex/chat window as task state.
