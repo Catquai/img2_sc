@@ -11,19 +11,76 @@ param(
 
 Add-Type -AssemblyName System.Drawing
 
+function Invoke-ImageMagick {
+    param([string[]]$Arguments)
+    $magick = Get-Command magick -ErrorAction SilentlyContinue
+    if (-not $magick) {
+        return $null
+    }
+
+    $output = & $magick.Source @Arguments 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        return $null
+    }
+
+    return $output
+}
+
 function Get-ImageSize {
     param([string]$Path)
-    $resolved = Resolve-Path -LiteralPath $Path
-    $image = [System.Drawing.Image]::FromFile($resolved)
+    $resolved = (Resolve-Path -LiteralPath $Path).Path
+
     try {
-        return [PSCustomObject]@{
-            Path = $resolved.Path
-            Width = $image.Width
-            Height = $image.Height
+        $image = [System.Drawing.Image]::FromFile($resolved)
+        try {
+            return [PSCustomObject]@{
+                Path = $resolved
+                Width = $image.Width
+                Height = $image.Height
+            }
+        }
+        finally {
+            $image.Dispose()
         }
     }
-    finally {
-        $image.Dispose()
+    catch {
+        $identify = Invoke-ImageMagick -Arguments @("identify", "-format", "%w %h", $resolved)
+        if ($identify) {
+            $parts = ($identify -join "").Trim() -split "\s+"
+            if ($parts.Count -ge 2) {
+                return [PSCustomObject]@{
+                    Path = $resolved
+                    Width = [int]$parts[0]
+                    Height = [int]$parts[1]
+                }
+            }
+        }
+
+        throw "Unable to read image size for '$resolved'. Install ImageMagick or convert unsupported formats such as WebP to PNG first. Original error: $($_.Exception.Message)"
+    }
+}
+
+function Open-ReadableImage {
+    param([string]$Path)
+    $resolved = (Resolve-Path -LiteralPath $Path).Path
+
+    try {
+        return [PSCustomObject]@{
+            Image = [System.Drawing.Image]::FromFile($resolved)
+            TempPath = $null
+        }
+    }
+    catch {
+        $tempPath = Join-Path ([System.IO.Path]::GetTempPath()) ("img2sc_" + [System.Guid]::NewGuid().ToString("N") + ".png")
+        $converted = Invoke-ImageMagick -Arguments @($resolved, $tempPath)
+        if (-not $converted -and -not (Test-Path -LiteralPath $tempPath)) {
+            throw "Unable to open '$resolved' with System.Drawing or convert it with ImageMagick. Original error: $($_.Exception.Message)"
+        }
+
+        return [PSCustomObject]@{
+            Image = [System.Drawing.Image]::FromFile($tempPath)
+            TempPath = $tempPath
+        }
     }
 }
 
@@ -74,8 +131,8 @@ if (-not $Reference -or -not $Generated -or -not $Output) {
 }
 
 $referenceSize = Get-ImageSize -Path $Reference
-$generatedPath = (Resolve-Path -LiteralPath $Generated).Path
-$source = [System.Drawing.Image]::FromFile($generatedPath)
+$sourceHandle = Open-ReadableImage -Path $Generated
+$source = $sourceHandle.Image
 $canvas = New-Object System.Drawing.Bitmap $referenceSize.Width, $referenceSize.Height
 $graphics = [System.Drawing.Graphics]::FromImage($canvas)
 
@@ -111,6 +168,9 @@ finally {
     $graphics.Dispose()
     $canvas.Dispose()
     $source.Dispose()
+    if ($sourceHandle.TempPath -and (Test-Path -LiteralPath $sourceHandle.TempPath)) {
+        Remove-Item -LiteralPath $sourceHandle.TempPath -Force
+    }
 }
 
 $finalSize = Get-ImageSize -Path $Output

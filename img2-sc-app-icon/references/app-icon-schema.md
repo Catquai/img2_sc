@@ -64,6 +64,8 @@
       "sampled_position_shift_percent": {},
       "sampled_overlap_change": "",
       "sampled_color_shift": {},
+      "minimum_changed_dimensions": 3,
+      "changed_dimensions": ["rotation", "scale", "position", "shape", "color", "decorative_layout"],
       "must_differ_from_reference": true,
       "must_differ_from_previous_generation": true
     },
@@ -71,17 +73,18 @@
       "apply_when": "one dominant subject or one merged symbol",
       "shape_variation": "noticeable but identity-preserving",
       "pose_variation": "noticeable random direction-angle rotation or perspective change",
-      "rotation_delta_degrees": "12-35",
-      "scale_delta": "0.85-1.18",
-      "position_shift": "small shift inside safe area",
+      "rotation_delta_degrees": "18-42",
+      "scale_delta": "0.78-1.25",
+      "position_shift": "6-16 percent inside safe area",
       "color_variation": "noticeable but harmonious"
     },
     "multiple_elements_policy": {
       "apply_when": "two or more meaningful visual elements",
       "main_element_preservation": ["identity", "required traits", "semantic orientation", "small-size readability"],
-      "position_variation": "randomly adjust relative positions, spacing, and overlap while preserving hierarchy",
-      "rotation_delta_degrees": {"main_element": "8-25", "secondary_elements": "10-40"},
-      "scale_delta": "0.80-1.20",
+      "position_variation": "visibly reorganize relative positions, spacing, overlap, and center of mass while preserving hierarchy",
+      "rotation_delta_degrees": {"main_element": "12-32", "secondary_elements": "18-48"},
+      "scale_delta": "0.72-1.28",
+      "minimum_distance_or_overlap_change_percent": 15,
       "color_variation": "vary main and secondary palettes without breaking semantic colors"
     },
     "forbidden": ["identity loss", "semantic direction reversal", "important-part occlusion", "safe-area overflow", "main-secondary hierarchy confusion"]
@@ -91,8 +94,8 @@
     "semantic_orientation": "",
     "reference_visual_pose": "",
     "target_visual_pose": "",
-    "rotation_delta_degrees": "8-25",
-    "perspective_change": "none | subtle | moderate",
+    "rotation_delta_degrees": "12-32",
+    "perspective_change": "subtle | moderate",
     "allowed": ["planar rotation", "slight pitch", "slight yaw", "three-quarter view"],
     "forbidden": ["semantic direction reversal", "extreme foreshortening", "identity-breaking deformation", "important-part occlusion"]
   },
@@ -145,6 +148,14 @@
       "method": "generate_subject_variant_on_chroma_key",
       "forbid_local_rough_mask_fallback": true,
       "forbid_reference_cutout_as_generation_substitute": true,
+      "forbid_key_color_inside_subject": true,
+      "key_color_must_not_be_subject_material": true,
+      "remove_all_key_like_pixels_unless_declared_subject_material": true,
+      "transparentize_disconnected_key_like_gaps_between_foreground_parts": true,
+      "preserve_disconnected_key_like_only_if_declared_subject_material": false,
+      "fill_subject_internal_holes_before_resize": true,
+      "distinguish_inter_element_background_gaps_from_subject_internal_material": true,
+      "fail_if_visible_key_like_pixels_remain": true,
       "work_at_original_or_higher_resolution": true,
       "keyed_intermediate": null,
       "alpha_output_original_size": null,
@@ -177,6 +188,9 @@
     "background": "transparent",
     "keyed_intermediate": null,
     "final_size_px": [72, 72],
+    "resize_policy": "resize_full_canvas_to_final_size",
+    "forbid_trim_and_subject_shrink": true,
+    "forbid_scale_percent_after_normalization": true,
     "verify_true_alpha": true,
     "verify_visible_pixels_pure_white": true,
     "forbid_solid_alpha_silhouette_only": true,
@@ -218,17 +232,21 @@
 ## Reference Analysis Rules
 
 - When the user provides only a reference image, image attachment, image path, or `Files mentioned by the user` image context, treat it as a `reference_only` generation request by default. Extract JSON, then generate a new App icon variant. Do not stop at analysis, list options, or ask what to do unless the user explicitly requested analysis only or generation is blocked.
+- Resolve helper script paths relative to the `img2-sc-app-icon` skill directory, not the current shell directory. For example, run `img2-sc-app-icon/scripts/match_reference_size.ps1` when the workspace root is the repository root.
+- If the reference is WebP or another format that `System.Drawing` cannot decode, use ImageMagick metadata (`magick identify`) or another structured image library to record dimensions. Do not treat a local metadata-read failure as a generation blocker when the image can still be visually inspected.
 - Distinguish semantic identity from observed shape. Record both when the reference uses an abstract symbol.
 - Record exact count and orientation of meaningful objects. Separate immutable `semantic_orientation` from changeable `visual_pose`.
-- Classify the composition as `single_primary_element` or `multiple_elements` before generation. For a single primary element, create a noticeably different but recognizable shape, pose, random direction-angle rotation, scale, and color treatment. For multiple elements, preserve the main element identity while randomly adjusting element positions, angles, scale relationships, overlap, and colors.
-- Every `reference_only` generation must sample fresh random variation parameters and record them in `composition_variation.randomization`. Do not reuse a fixed template pose, the reference pose, or the previous generation's parameter set.
+- Classify the composition as `single_primary_element` or `multiple_elements` before generation. For a single primary element, create a clearly different but recognizable shape, pose, random direction-angle rotation, scale, center of mass, and color treatment. For multiple elements, preserve the main element identity while visibly reorganizing element positions, angles, scale relationships, overlap order, spacing, and colors.
+- Every `reference_only` generation must sample fresh random variation parameters and record them in `composition_variation.randomization`. At least three independent variation dimensions must change visibly. Do not reuse a fixed template pose, the reference pose, the reference element placement, or the previous generation's parameter set.
 - Identify decorative accents and record them in `decorative_variation`. Accents include sparkles, light dots, particles, small badges, local highlights, background glints, shine fragments, and non-semantic ornamentation.
 - Decorative accents should vary randomly in every generation. Change count, position, scale, rotation, opacity, brightness, color, or small shape details while keeping them visually secondary and style-consistent.
+- During reference analysis, assign every visible element to foreground or background before any split generation. Write this assignment into `layer_split.foreground_elements`, `layer_split.background_elements`, `foreground_exclusions`, and `background_exclusions`.
+- The final foreground and background layers must obey the JSON element assignment. The same sparkle, bubble, glint, sweep, shadow, badge, primary part, or secondary part must not appear in both final layers. If an accent is assigned to foreground, the background must exclude it; if it is assigned to background, the foreground must exclude it.
 - Treat background, primary symbol, badge, text, highlight and shadow as separate layers.
 - Record transparent corners separately from internal semi-transparent materials.
 - Preserve the reference's mask only when it is visibly part of the asset or explicitly requested.
-- In `reference_only`, preserve identity, hierarchy, style family and mask while creating a visibly new variant. Single primary elements should usually use stronger random direction-angle rotation, shape/pose variation, scale change, and color variation than a minor pose tweak. Multiple-element icons may reorganize relative positions, angles, overlap, scale, and colors as long as the main element remains readable.
-- Prefer approximately `12-35°` planar rotation for single primary elements, or `8-25°` for main elements and `10-40°` for secondary elements in multi-element compositions. Use smaller changes when the subject is already diagonal or near the safe-area boundary.
+- In `reference_only`, preserve identity, hierarchy, style family and mask while creating a visibly new variant. Do not preserve the reference composition by default. Single primary elements must usually use stronger random direction-angle rotation, shape/pose variation, scale change, center shift, and color variation than a minor pose tweak. Multiple-element icons should reorganize relative positions, angles, overlap order, scale, spacing, and colors as long as the main element remains readable.
+- Prefer approximately `18-42°` planar rotation for single primary elements, or `12-32°` for main elements and `18-48°` for secondary elements in multi-element compositions. Use smaller changes only when the subject is already diagonal, strict geometry, or near the safe-area boundary, and compensate with stronger scale, position, color, shape, or decoration changes.
 - Preserve semantic orientation and functional relationships. Do not reverse directional symbols, vehicle travel direction, animal head/tail direction, tool assembly, object stacking or front/back layer meaning.
 - Do not perspective-warp text, numbers, brand marks, flags, arrows, strict symmetric badges or precision geometry unless the user explicitly requests it.
 - Separate `primary_colors`, `accent_colors` and `protected_colors`. Primary colors define the subject identity; accent colors support local contrast and detail; protected colors must remain exact or perceptually unchanged.
@@ -237,14 +255,22 @@
 - Never let accent colors replace or overpower the primary color identity. Do not change brand colors, flag colors, traffic/status colors or user-specified exact colors without explicit permission.
 - For `output.mode: composite`, the background fills the entire 1:1 canvas and is opaque by default. Transparent backgrounds, transparent corners, transparent holes, or blank margins are allowed only when the user explicitly requests transparent PNG or the reference/workflow requires a true alpha asset.
 
+## Generation Prompt Reliability
+
+- Keep the first image-generation prompt focused on the structured JSON's essential constraints: app identity, canvas/output, primary elements, relationships, sampled variation parameters, invariants, and failure criteria. Avoid pasting the entire schema or long explanatory checklists into the model call.
+- If a long structured prompt fails at the image-generation service layer, retry once with a compact prompt that still names `gpt-image-2`, preserves the same app identity, element relationships, sampled randomization, output size, and hard omissions. Do not silently drop identity, safe-area, opacity, background-fill, or no-text/no-mockup constraints.
+- When falling back to a compact prompt, keep the structured JSON as the local source of truth for verification and report that the generation used a shortened prompt.
+
 ## Foreground And Background Pair
 
 - Enable `layer_split` only when the user requests separate foreground/background output or when the requested deliverable clearly requires movable layers.
 - For split output, derive separate generation passes from the structured JSON. Extract primary foreground elements into a keyed subject-variant pass, and extract background information into a new background-variant pass.
 - Do not use local rough masks, hand-drawn polygon mattes, simple reference-image cutouts, or local rotate/scale transforms as substitutes for a generated keyed foreground variant. If the image generation tool is unavailable, stop and report that generation is blocked instead of delivering a fallback asset.
 - Assign every visible element to foreground or background before generation. Keep only the primary subject and subject-attached effects in the foreground.
+- Before generation, verify that `foreground_elements` and `background_elements` do not contain duplicate element identities. Fix the JSON first if the same element appears in both lists.
 - Generate the foreground elements on a uniform adaptive chroma-key background, then locally remove the key screen to create a true-alpha PNG. Do not default blindly to green unless the user explicitly asks for green screen.
 - The keyed foreground must be visually clean: no original-background chunks, rectangular color blocks, hard polygon-mask edges, missing handles/edges/critical parts, checkerboard, or discontinuous alpha boundaries.
+- The key color may appear only outside the declared foreground subject. It must not appear as a placeholder inside subject holes, folder openings, card gaps, badge grooves, tool slots, or other interior regions unless those regions are explicitly declared as true transparent negative space in the JSON.
 - Choose the key color with maximum distance from primary colors, accent colors, highlights, glows, shadows and particles. Prefer `#ff00ff` for blue/cyan foregrounds, `#00ff00` for purple/red/warm foregrounds, and avoid any key color present in semi-transparent effects.
 - If a blue/cyan foreground also contains purple or magenta accents, prefer yellow `#ffff00` over magenta.
 - Generate the background from the structured JSON background description as a new complete fully opaque background variant. Do not include the primary subject, subject ghosting, subject-shaped empty patches, or duplicated foreground decoration.
@@ -252,7 +278,10 @@
 - Default final layer dimensions to `512x512` unless the user explicitly requests another size.
 - Foreground processing order is mandatory: generate keyed foreground from JSON at original or higher work resolution, remove key screen, reconstruct/decontaminate semi-transparent pixels, verify alpha, scale the main element to 70% on a transparent canvas, then resize/normalize the transparent PNG to `512x512`. Never resize the green-screen/keyed source before keying.
 - Background processing order is mandatory: generate a complete opaque background variant at original or higher work resolution, verify the background is fully opaque, then resize to `512x512`.
-- Semi-transparent foreground glows, highlights, antialiased edges and shadows must be color-decontaminated by reversing key-screen compositing and applying generic despill. Set hidden RGB to zero for fully transparent and extremely low-alpha pixels before resizing; reject visible key-color fringes.
+- Before removing the key screen, decide which foreground regions are meant to be opaque. Solid or glassy app-icon subjects such as shields, brushes, bristles, handles, badges and main symbols usually keep their rendered opacity; do not globally turn the whole subject semi-transparent just because it was generated on a key screen.
+- Use alpha reconstruction and reverse key-screen compositing only for regions that are genuinely semi-transparent: soft glows, white shine, antialiased edges, sweep highlights and shadows. Set hidden RGB to zero for fully transparent and extremely low-alpha pixels before resizing; reject visible key-color fringes.
+- When the subject should stay opaque and only star/sparkle/white-glow edges contain key-color contamination, prefer connected-background key removal: flood-fill key-colored pixels connected to the canvas edges, set only that connected background transparent, keep non-connected subject pixels opaque, then apply local despill to visible magenta/green fringes. Pillow or an equivalent structured image library is preferred for this case.
+- After key removal, inspect subject interiors before resizing. If folder interiors, card-behind gaps, arrow inner regions, badge grooves, or other non-transparent subject areas become transparent holes because key color was removed, repair/fill them at the original resolution before scaling. Do not deliver foreground layers with unintended internal transparency.
 - Move non-subject-attached translucent fog, environmental glow, trails and particles to the background whenever possible. This is more reliable than color-key extraction.
 - Keep both layers at exactly the same pixel dimensions and alignment. Do not recenter, rescale or rotate the subject between passes.
 - Exclude subject silhouettes, ghosting, duplicate foreground decoration and subject-specific highlights from the background.
@@ -262,6 +291,7 @@
 
 - Use the keyed foreground source as the visual reference. Generate a minimal pure-white negative-space icon on a uniform key screen, then locally remove the key screen to create transparent PNG output.
 - Do not make the white negative icon by simply filling the foreground alpha silhouette with white. It must include readable internal transparent negative-space structures that preserve identity at `72x72`.
+- The white negative icon must preserve recognizable internal identity features. For shield-plus-cleaning-tool icons, preserve features such as shield inner/outer separation, brush head/handle separation, bristle group separation, or equivalent transparent negative-space structures.
 - Preserve the subject's outer silhouette and identity-defining parts while simplifying decorative details.
 - Express internal structure only with transparent negative space. Use negative holes for openings, component separation and essential internal landmarks.
 - Keep every visible pixel pure white. Preserve antialiased alpha edges, but do not use gray RGB values for antialiasing.
@@ -269,6 +299,7 @@
 - Ensure negative spaces remain open and readable after resizing. Merge or remove fragile micro-details.
 - Do not treat color normalization as negative-space design. First generate or construct the required negative alpha regions; only then normalize all visible RGB to white.
 - Final white negative icon must be `72x72`, have true transparent background, and pass pure-white visible-pixel validation.
+- The final white negative icon is produced by resizing the whole normalized image canvas to `72x72`. Do not trim the subject, thumbnail it, apply scale-percent reduction, or add extra margins after normalization. If the subject is too large or too small, regenerate or renormalize the source canvas instead of shrinking the main element during final output.
 
 ## Small-Size Readability
 
@@ -280,8 +311,9 @@ Reject the result when:
 - Composite output has transparent areas, blank margins, unpainted canvas regions, or a background that does not fill the entire canvas when transparency was not explicitly requested.
 - Several elements compete as equal focal points.
 - Important parts cross the safe area or are clipped.
-- A `reference_only` result copies the reference pose too closely without a meaningful rotation, perspective or silhouette change.
+- A `reference_only` result copies the reference pose, silhouette, overlap, center of mass, or element placement too closely without meaningful changes in at least three independent dimensions.
 - A repeated `reference_only` generation reuses the same angle, scale, position, overlap, and color parameters instead of sampling a fresh variation.
+- A `reference_only` result only changes rendering quality, lighting, minor highlights, small decorative dots, or a subtle accent color while keeping the same layout and subject pose.
 - Rotation or perspective makes the subject distorted, hides identity-defining parts, reverses semantic direction or breaks relationships.
 - Accent colors remain an overly close copy when adjustment was safe and appropriate.
 - Accent colors overpower the primary palette, reduce contrast, break material readability or alter protected/semantic colors.
@@ -289,13 +321,16 @@ Reject the result when:
 - Decorative accents obscure the main subject, become the primary focal point, create clutter, add text, or introduce a misleading semantic/status symbol.
 - Foreground contains background scenery or lacks true transparent pixels after green-screen removal.
 - Foreground was not generated from the structured JSON foreground elements, was resized before key-screen removal, was not scaled to approximately 70% after key removal, is not `512x512`, or semi-transparent edges retain visible key-color contamination.
+- Foreground contains unintended transparent holes inside the main subject after key removal. Folder openings, object interiors, card gaps, grooves, or other non-transparent internal regions are empty/transparent instead of filled with plausible subject color or shadow.
 - Foreground uses a local rough mask or reference cutout as a substitute for generation, contains original background chunks, rectangular artifacts, hard polygon-mask edges, broken/missing subject parts, or looks like a low-quality cutout.
 - Background was not generated from the structured JSON background information, contains transparency, a subject-shaped hole, subject ghosting or duplicated foreground elements.
 - Background is merely a placeholder gradient, blank color field, random decorative circles, or otherwise not a designed background variant consistent with the JSON.
 - Background is not `512x512`, or the final background contains partial alpha.
 - Foreground and background dimensions/alignment differ, or the recomposed preview shifts the subject.
+- The same element appears in both final foreground and final background layers, including duplicated sparkles, white glints, sweep highlights, badges, bubbles, shadows, or any foreground-attached effect.
 - White negative icon is not based on the keyed foreground source, is not `72x72`, contains non-white visible pixels, lacks transparency, uses outlines/effects, loses subject identity or becomes an undifferentiated solid blob.
-- White negative icon is only a filled alpha silhouette, has no meaningful internal transparent negative spaces, becomes a potato-like blob at `72x72`, or loses the shield/tool/trash-bin identity.
+- White negative icon is only a filled alpha silhouette, has no meaningful internal transparent negative spaces, lacks recognizable internal features, becomes a potato-like blob at `72x72`, or loses the shield/tool/trash-bin identity.
+- White negative icon was trimmed and the main element was shrunk before placing it into a `72x72` canvas, or otherwise uses a final subject-shrink/extra-margin step instead of resizing the full normalized canvas to `72x72`.
 
 ## Platform Notes
 
