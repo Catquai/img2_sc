@@ -5,6 +5,19 @@
 ```json
 {
   "input_mode": "text_only | reference_only | reference_plus_text",
+  "input_image_role": {
+    "role": "reference_image | composite_source | foreground_source_image | background_source_image",
+    "decision_reason": "",
+    "explicit_user_phrase": "",
+    "role_priority_rule": "explicit_layer_role > explicit_locked_split_request > accepted_generation_continuation > ordinary_reference",
+    "ordinary_reference_is_default": true,
+    "forbid_auto_composite_source_from_complete_icon_appearance": true,
+    "multiple_images_must_each_have_role": true,
+    "reference_image_flow": "extract_structured_json_then_generate_new_foreground_variant_and_new_complete_background_variant",
+    "composite_source_flow": "extract_foreground_visual_lock_then_recreate_same_foreground_on_key_screen_and_inpaint_background",
+    "foreground_source_image_flow": "do_not_regenerate_subject; clean_key_or_alpha_then_resize_and_generate_negative_if_enabled",
+    "background_source_image_flow": "do_not_regenerate_background_subject_content; flatten_or_repair_then_resize"
+  },
   "canvas": {
     "aspect_ratio": "1:1",
     "source_width_px": null,
@@ -71,7 +84,12 @@
       "preserve_primary_object_recognition": true,
       "forbid_identity_breaking_container_deformation": true,
       "prefer_non_destructive_variation_dimensions": ["composition_layout", "arrow_path_and_placement", "card_count_and_arrangement", "overlap_order", "center_of_mass_region", "subject_colorway", "accent_color_palette", "background_element_family", "background_colorway"],
-      "folder_upload_recognition_requirements": ["open pocket or tray front lip", "visible side walls", "visible inner cavity", "folder tab or readable container silhouette", "readable upward upload arrow", "media/document cards remain readable"]
+      "folder_upload_container_type": "flat_folder_pocket",
+      "container_type_extraction_rule": "write exactly one concrete value from the reference; do not write alternatives such as flat_folder_pocket | deep_tray_box, folder/tray, folder or container, or maybe",
+      "reference_flat_folder_prompt": "flat yellow file folder pocket with front panel, rear flap, angled open mouth, shallow pocket, and right folded side flap",
+      "flat_folder_pocket_requirements": ["flat folder front panel", "rear flap/back panel", "angled open mouth", "shallow pocket", "folder tab or folded side flap if visible", "readable flat folder silhouette", "readable upward upload arrow", "media/document cards remain readable"],
+      "deep_tray_box_requirements": ["use only if the reference actually shows a deep tray or box", "open pocket or tray front lip", "visible high side walls", "visible inner cavity", "readable tray/box silhouette", "readable upward upload arrow", "media/document cards remain readable"],
+      "flat_folder_forbidden_shapes": ["box frame", "deep tray", "storage bin", "basket", "side-wall container", "thick rectangular rim", "thin vertical box", "abstract pillar", "generic paper box"]
     },
     "single_primary_element_policy": {
       "apply_when": "one dominant subject or one merged symbol",
@@ -145,7 +163,8 @@
     "composite_source": null,
     "composite_source_allowed_only_when_user_accepts_or_requests_locked_split": true,
     "direct_model_composite_generation_allowed": false,
-    "local_composite_preview_required": true,
+    "local_composite_full_subject_preview_required": true,
+    "local_70pct_composite_preview_required": false,
     "default_generation_order": [
       "extract_structured_json_prompt_from_image",
       "generate_foreground_adaptive_chroma_key_from_json_foreground_elements",
@@ -153,8 +172,7 @@
       "remove_chroma_key_locally_to_transparent_foreground",
       "generate_white_negative_from_keyed_foreground_and_resize_72",
       "locally_compose_unscaled_foreground_over_background_to_512",
-      "scale_transparent_foreground_subject_to_70_percent_then_canvas_to_512",
-      "locally_compose_foreground_over_background_to_512"
+      "scale_transparent_foreground_subject_to_70_percent_then_canvas_to_512"
     ],
     "foreground_source": "structured_json.foreground_elements",
     "background_source": "structured_json.background_elements",
@@ -247,6 +265,9 @@
     "source": "foreground_keyed_source",
     "source_must_be_derived_from_composite_foreground": false,
     "source_must_be_generated_from_keyed_foreground": true,
+    "actual_foreground_image_input_required": true,
+    "forbid_semantic_only_negative_generation": true,
+    "forbid_reusing_previous_negative_template": true,
     "fill_color": "#ffffff",
     "background": "transparent",
     "keyed_intermediate": null,
@@ -293,8 +314,7 @@
       "foreground_alpha_70pct_512_png": null,
       "background_png": null,
       "white_negative_icon_png": null,
-      "composite_full_subject_preview": null,
-      "composite_preview": null
+      "composite_full_subject_preview": null
     }
   }
 }
@@ -304,6 +324,7 @@
 
 - When the user provides only a reference image, image attachment, image path, or `Files mentioned by the user` image context, treat it as a `reference_only` generation request by default. Extract JSON, then generate a new App icon variant. Do not stop at analysis, list options, or ask what to do unless the user explicitly requested analysis only or generation is blocked.
 - The original user-provided reference image is `reference_image`, not `composite_source`. Do not enable visual-lock splitting or "only replace background with key color" from the original reference unless the user explicitly says to lock that exact image, split that accepted image, or keep the subject unchanged.
+- Before any generation or split, classify every supplied image into exactly one `input_image_role`. A complete-looking icon is still `reference_image` by default. Use `composite_source` only for explicit locked-split requests or an accepted generated result that the user asks to continue splitting. Use `foreground_source_image` / `background_source_image` only when the user names the image as a layer or the file is already clearly a keyed/transparent foreground or background layer.
 - Resolve helper script paths relative to the `img2-sc-app-icon` skill directory, not the current shell directory. For example, run `img2-sc-app-icon/scripts/match_reference_size.ps1` when the workspace root is the repository root.
 - If the reference is WebP or another format that `System.Drawing` cannot decode, use ImageMagick metadata (`magick identify`) or another structured image library to record dimensions. Do not treat a local metadata-read failure as a generation blocker when the image can still be visually inspected.
 - Distinguish semantic identity from observed shape. Record both when the reference uses an abstract symbol.
@@ -319,7 +340,7 @@
 - Record transparent corners separately from internal semi-transparent materials.
 - Preserve the reference's mask only when it is visibly part of the asset or explicitly requested.
 - In `reference_only`, preserve identity, hierarchy, style family and mask while creating a visibly new variant. Do not preserve the reference composition by default. Single primary elements must usually use stronger random direction-angle rotation, shape/pose variation, scale change, center shift, and color variation than a minor pose tweak. Multiple-element icons should reorganize relative positions, angles, overlap order, scale, spacing, and colors as long as the main element remains readable.
-- For folder/upload icons, the folder or tray is an identity-defining object. It must keep a readable open pocket, front lip, side walls, inner cavity, and folder/container silhouette. Do not turn it into a thin vertical box, abstract pillar, generic paper box, or any shape that is no longer clearly a folder/upload container. If silhouette change would reduce recognizability, use composition, color, arrow, card, and background changes instead.
+- For folder/upload icons, infer exactly one concrete container type from visual evidence and write only that value into JSON. Do not write alternatives such as `flat_folder_pocket | deep_tray_box`, `folder/tray`, `folder or container`, `open folder or tray`, or `maybe`. If the reference is a flat manila-style folder, the JSON must use the exact flat-folder semantic prompt: `flat yellow file folder pocket with front panel, rear flap, angled open mouth, shallow pocket, and right folded side flap`. Do not describe a flat folder as a deep tray, storage bin, basket, side-wall container, thick rectangular rim, or generic box. Use tray/container/side-wall/interior-cavity language only when the reference actually shows a deep tray or box. If silhouette change would reduce recognizability, use composition, color, arrow, card, and background changes instead.
 - In `reference_only`, a keyed foreground pass that only removes/replaces the original background is a failure. The keyed foreground must itself be the new variant layer unless a real `composite_source` was explicitly selected.
 - Treat "green screen" as a generic chroma-key request unless the user explicitly asks for literal green. Select the key color by maximum distance from the generated foreground colors; if the foreground contains green or cyan-green materials, do not use literal green as the key color.
 - For local key removal, remove edge-connected key-color regions by default. Disconnected key-like regions are removed only when the structured JSON declares them as `transparent_negative_regions`, `true_cutout_regions`, or `background_gaps_between_foreground_parts`. Undeclared internal key-like regions must be preserved or fixed in the keyed source; do not auto-delete them.
@@ -342,8 +363,8 @@
 ## Foreground And Background Pair
 
 - Enable `layer_split` by default for normal app-icon generation unless the user explicitly requests composite-only output.
-- Do not ask the image model to generate the final composite directly in the default flow. Generate separate passes from the structured JSON, then create the composite preview locally from the transparent foreground and opaque background.
-- The default order is fixed: extract structured JSON, generate keyed foreground from foreground elements, generate and resize opaque background from background elements, remove key color locally, generate the white negative icon from the transparent foreground and resize the whole canvas to `72x72`, scale the transparent foreground subject to `70%` and normalize the canvas to `512x512`, then locally compose foreground over background to `512x512`.
+- Do not ask the image model to generate the final composite directly in the default flow. Generate separate passes from the structured JSON, then create only the unscaled-subject composite check image locally from the transparent foreground and opaque background.
+- The default order is fixed: extract structured JSON, generate keyed foreground from foreground elements, generate and resize opaque background from background elements, remove key color locally, generate the white negative icon from the transparent foreground and resize the whole canvas to `72x72`, locally compose the unscaled transparent foreground over the background as `composite_full_subject_preview`, then scale the transparent foreground subject to `70%` and normalize the foreground canvas to `512x512`. Do not generate a 70% foreground composite preview by default.
 - For split output, derive separate generation passes from the structured JSON. Extract primary foreground elements into a keyed subject-variant pass, and extract background information into a background pass.
 - Do not use local rough masks, hand-drawn polygon mattes, simple reference-image cutouts, or local rotate/scale transforms as substitutes for a generated keyed foreground variant. If the image generation tool is unavailable, stop and report that generation is blocked instead of delivering a fallback asset.
 - Assign every visible element to foreground or background before generation. Keep only the primary subject and subject-attached effects in the foreground.
@@ -369,7 +390,9 @@
 
 ## White Negative Icon
 
-- Use the keyed foreground source as the visual reference. Generate a minimal pure-white negative-space icon on a uniform key screen, then locally remove the key screen to create transparent PNG output.
+- Use the actual `foreground_keyed_source` image file as the visual reference input. Generate a minimal pure-white negative-space icon on a uniform key screen, then locally remove the key screen to create transparent PNG output.
+- Do not generate the white negative icon from semantic description alone, conversation memory, a previously generated negative icon, or a reused folder/upload template. If the current image generation tool cannot attach the actual `foreground_keyed_source` image as an input/reference, do not call the model for this pass; use local alpha/vector processing or report that the negative icon is blocked.
+- Before generation, write a `negative_visual_lock` from the actual foreground image: outer silhouette, card count, card angles, arrow position, folder/container shape, overlap order, and required internal cutouts. The generated negative keyed source must match that lock.
 - Do not make the white negative icon by simply filling the foreground alpha silhouette with white. It must include readable internal transparent negative-space structures that preserve identity at `72x72`.
 - The white negative icon must preserve recognizable internal identity features. For shield-plus-cleaning-tool icons, preserve features such as shield inner/outer separation, brush head/handle separation, bristle group separation, or equivalent transparent negative-space structures.
 - Preserve the subject's outer silhouette and identity-defining parts while simplifying decorative details.
@@ -401,7 +424,7 @@ Reject the result when:
 - Local key removal deletes disconnected internal key-like subject material that was not declared as transparent negative space, true cutout, or inter-element background gap.
 - Local key removal preserves disconnected key-like pixels that were explicitly declared as transparent negative space, true cutout, or inter-element background gap.
 - Rotation or perspective makes the subject distorted, hides identity-defining parts, reverses semantic direction or breaks relationships.
-- A folder/upload result turns the folder or tray into a thin vertical holder, abstract column, generic box, or otherwise loses the readable open pocket/front lip/inner cavity/container silhouette.
+- A flat-folder/upload reference result turns the folder into a box frame, deep tray, storage bin, basket, side-wall container, thick rectangular rim, thin vertical holder, abstract column, generic box, or otherwise loses the readable flat folder front panel, rear flap, angled opening, shallow pocket, and folder silhouette.
 - Accent colors remain an overly close copy when adjustment was safe and appropriate.
 - Accent colors overpower the primary palette, reduce contrast, break material readability or alter protected/semantic colors.
 - Decorative accents are copied mechanically from the reference with no visible random change.
@@ -413,9 +436,10 @@ Reject the result when:
 - Background was not generated from the structured JSON background information, contains transparency, a subject-shaped hole, subject ghosting or duplicated foreground elements.
 - Background is merely a placeholder gradient, blank color field, random decorative circles, or otherwise not a designed background variant consistent with the JSON.
 - Background is not `512x512`, or the final background contains partial alpha.
-- Foreground and background dimensions/alignment differ, or the recomposed preview shifts the subject.
+- Foreground and background dimensions/alignment differ, or the unscaled-subject recomposed check image shifts the subject.
 - The same element appears in both final foreground and final background layers, including duplicated sparkles, white glints, sweep highlights, badges, bubbles, shadows, or any foreground-attached effect.
-- White negative icon is not based on the keyed foreground source, is not `72x72`, contains non-white visible pixels, lacks transparency, uses outlines/effects, loses subject identity or becomes an undifferentiated solid blob.
+- White negative icon is not based on the actual keyed foreground source image file, is not `72x72`, contains non-white visible pixels, lacks transparency, uses outlines/effects, loses subject identity or becomes an undifferentiated solid blob.
+- White negative icon was generated from semantic description, conversation memory, a previous negative template, or a generic folder/upload concept instead of the current foreground image's actual silhouette, card count, angles, arrow placement and overlap order.
 - White negative icon is only a filled alpha silhouette, has no meaningful internal transparent negative spaces, lacks recognizable internal features, becomes a potato-like blob at `72x72`, or loses the shield/tool/trash-bin identity.
 - White negative icon was trimmed and the main element was shrunk before placing it into a `72x72` canvas, or otherwise uses a final subject-shrink/extra-margin step instead of resizing the full normalized canvas to `72x72`.
 

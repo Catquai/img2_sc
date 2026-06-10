@@ -10,7 +10,7 @@
   },
   "app_identity": {
     "category": "file upload / media upload",
-    "primary_symbol": "open folder or tray containing media/document cards with upward upload arrow",
+    "primary_symbol": "flat yellow file folder pocket containing media/document cards with upward upload arrow",
     "semantic_orientation": "upload arrow points upward"
   },
   "style": {
@@ -20,19 +20,28 @@
   },
   "foreground_elements": [
     {
-      "id": "open_folder_tray",
+      "id": "flat_yellow_file_folder_pocket",
+      "identity": "flat yellow file folder pocket with front panel, rear flap, angled open mouth, shallow pocket, and right folded side flap",
+      "container_type": "flat_folder_pocket",
       "required_traits": [
-        "recognizable open pocket",
-        "front lip",
-        "side walls",
-        "visible inner cavity",
-        "yellow/orange container family"
+        "flat yellow file folder front panel",
+        "visible rear flap/back panel",
+        "angled open mouth",
+        "shallow pocket, not a deep tray",
+        "right folded side flap",
+        "yellow/orange folder color family"
       ],
       "forbidden_changes": [
+        "box frame",
+        "deep tray",
+        "storage bin",
+        "basket",
+        "side-wall container",
+        "thick rectangular rim",
         "thin vertical holder",
         "abstract pillar",
         "generic paper box",
-        "closed or unreadable container"
+        "closed or unreadable folder pocket"
       ]
     },
     {
@@ -40,7 +49,7 @@
       "required_traits": [
         "upward direction",
         "curved mint-to-teal body",
-        "emerges from inside folder"
+        "emerges from the shallow folder pocket"
       ]
     },
     {
@@ -81,7 +90,7 @@
   "composition_variation": {
     "subject_structure": "multiple_elements",
     "changed_dimensions": [
-      "folder perspective and front lip width",
+      "flat folder pocket perspective and angled mouth shape",
       "card count and fan arrangement",
       "arrow path and placement",
       "badge position and colorway",
