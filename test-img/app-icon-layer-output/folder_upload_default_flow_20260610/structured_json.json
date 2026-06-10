@@ -1,0 +1,204 @@
+{
+  "input_mode": "reference_only",
+  "canvas": {
+    "aspect_ratio": "1:1",
+    "source_width_px": 240,
+    "source_height_px": 240,
+    "shape": "square",
+    "background": {
+      "type": "blue gradient with dotted wave texture",
+      "colors": [
+        "cyan blue",
+        "deep blue"
+      ],
+      "details": [
+        "halftone dotted wave bands",
+        "small glow particles"
+      ]
+    }
+  },
+  "platform_intent": {
+    "platform": "cross_platform",
+    "usage": "primary_app_icon",
+    "platform_applies_mask": true
+  },
+  "app_identity": {
+    "concept": "file upload / media folder",
+    "primary_symbol": "open folder with upload arrow and media cards",
+    "recognition_at_small_size": "yellow folder, upward upload arrow, image/play cards"
+  },
+  "style": {
+    "family": "soft_3d",
+    "lighting": "upper-left glossy studio light",
+    "materials": [
+      "plastic folder",
+      "rounded white cards",
+      "glossy arrow"
+    ],
+    "edge_treatment": "rounded bevels",
+    "shadow": "soft drop shadows",
+    "detail_level": "medium"
+  },
+  "elements": [
+    {
+      "id": "folder",
+      "identity": "open yellow file folder/container",
+      "bounds_percent": {
+        "x": 10,
+        "y": 38,
+        "w": 75,
+        "h": 43
+      },
+      "layer": 3,
+      "required_traits": [
+        "front pocket",
+        "rear tab",
+        "warm yellow/orange material"
+      ]
+    },
+    {
+      "id": "upload_arrow",
+      "identity": "upward upload arrow emerging from folder",
+      "bounds_percent": {
+        "x": 29,
+        "y": 43,
+        "w": 35,
+        "h": 38
+      },
+      "layer": 4,
+      "required_traits": [
+        "upward semantic direction",
+        "green/turquoise body",
+        "rounded 3D bevel"
+      ]
+    },
+    {
+      "id": "image_card",
+      "identity": "photo card with mountain and sun",
+      "bounds_percent": {
+        "x": 15,
+        "y": 13,
+        "w": 32,
+        "h": 38
+      },
+      "layer": 2,
+      "required_traits": [
+        "rounded white card",
+        "image pictogram"
+      ]
+    },
+    {
+      "id": "play_card",
+      "identity": "document card with blue play triangle",
+      "bounds_percent": {
+        "x": 43,
+        "y": 10,
+        "w": 29,
+        "h": 37
+      },
+      "layer": 2,
+      "required_traits": [
+        "rounded white card",
+        "right-pointing play triangle"
+      ]
+    },
+    {
+      "id": "upload_badge",
+      "identity": "round upload badge on folder",
+      "bounds_percent": {
+        "x": 50,
+        "y": 67,
+        "w": 16,
+        "h": 16
+      },
+      "layer": 5,
+      "required_traits": [
+        "circular badge",
+        "small upward upload mark"
+      ]
+    }
+  ],
+  "composition_variation": {
+    "subject_structure": "multiple_elements",
+    "randomization": {
+      "required_every_generation": true,
+      "sampled_rotation_degrees": {
+        "image_card": -13,
+        "play_card": 9,
+        "arrow": -8
+      },
+      "sampled_scale_delta": {
+        "subject_after_alpha": 0.7
+      },
+      "sampled_position_shift_percent": {
+        "folder": "lower right",
+        "cards": "higher and spread"
+      },
+      "sampled_color_shift": {
+        "arrow": "lime to turquoise",
+        "folder": "gold to orange"
+      },
+      "minimum_changed_dimensions": 3,
+      "changed_dimensions": [
+        "rotation",
+        "position",
+        "color",
+        "decorative_layout"
+      ]
+    }
+  },
+  "layer_split": {
+    "enabled": true,
+    "foreground_elements": [
+      "folder",
+      "upload_arrow",
+      "image_card",
+      "play_card",
+      "upload_badge",
+      "subject-attached bevel highlights and shadows"
+    ],
+    "background_elements": [
+      "blue gradient field",
+      "halftone dotted wave bands",
+      "small glow particles"
+    ],
+    "foreground_exclusions": [
+      "background gradient",
+      "dotted wave",
+      "distant particles"
+    ],
+    "background_exclusions": [
+      "folder",
+      "cards",
+      "upload arrow",
+      "badge",
+      "subject shadows"
+    ],
+    "key_color": "#00ff00"
+  },
+  "white_negative_icon": {
+    "enabled": true,
+    "source": "foreground_alpha_png",
+    "final_size_px": [
+      72,
+      72
+    ],
+    "require_internal_negative_space": true
+  },
+  "output": {
+    "mode": "foreground_background_pair",
+    "default_mode": "foreground_background_pair",
+    "final_width_px": 512,
+    "final_height_px": 512,
+    "do_not_generate_final_composite_directly": true,
+    "final_composite_must_be_local_layer_composition": true,
+    "files": {
+      "foreground_keyed_source": "F:\\img2-sc\\test-img\\app-icon-layer-output\\folder_upload_default_flow_20260610\\folder_upload_foreground_keyed_source.png",
+      "foreground_alpha_original_png": "F:\\img2-sc\\test-img\\app-icon-layer-output\\folder_upload_default_flow_20260610\\folder_upload_foreground_alpha_original.png",
+      "foreground_alpha_70pct_512_png": "F:\\img2-sc\\test-img\\app-icon-layer-output\\folder_upload_default_flow_20260610\\folder_upload_foreground_70pct_512.png",
+      "background_png": "F:\\img2-sc\\test-img\\app-icon-layer-output\\folder_upload_default_flow_20260610\\folder_upload_background_512.png",
+      "white_negative_icon_png": "F:\\img2-sc\\test-img\\app-icon-layer-output\\folder_upload_default_flow_20260610\\folder_upload_white_negative_72.png",
+      "composite_preview": "F:\\img2-sc\\test-img\\app-icon-layer-output\\folder_upload_default_flow_20260610\\folder_upload_composite_preview_512.png"
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "foreground_elements": [
+    "orange folder/container",
+    "red-orange inner folder surface",
+    "front circular orange upload badge",
+    "cream/white upward upload arrow in badge",
+    "turquoise curved upload arrow",
+    "left image card with green mountains and yellow sun",
+    "middle white play card with blue play triangle",
+    "right blue cloud card with pink dot",
+    "attached highlights, shadows, overlap/contact shadows"
+  ],
+  "background_elements": [
+    "blue-to-cyan gradient background",
+    "upper-left cyan glow",
+    "right-side dotted halftone wave",
+    "lower-left dotted halftone wave",
+    "small cyan/blue particles and glints",
+    "soft app-icon ambient lighting"
+  ],
+  "foreground_pass_rule": "replace original background with pure green screen only; do not change subject",
+  "background_pass_rule": "delete foreground elements only; preserve and complete original background elements",
+  "green_key_removal": "edge-connected green key removal only, preserving internal green subject elements"
+}

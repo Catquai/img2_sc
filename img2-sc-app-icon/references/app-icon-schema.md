@@ -133,9 +133,25 @@
   "forbidden_changes": [],
   "failure_criteria": [],
   "layer_split": {
-    "enabled": false,
+    "enabled": true,
+    "default_enabled_unless_composite_only_requested": true,
     "source_policy": "derive_layers_from_structured_json",
+    "reference_image": null,
+    "reference_image_is_not_composite_source_by_default": true,
     "composite_source": null,
+    "composite_source_allowed_only_when_user_accepts_or_requests_locked_split": true,
+    "direct_model_composite_generation_allowed": false,
+    "local_composite_preview_required": true,
+    "default_generation_order": [
+      "extract_structured_json_prompt_from_image",
+      "generate_foreground_adaptive_chroma_key_from_json_foreground_elements",
+      "generate_background_from_json_background_elements_and_resize_512",
+      "remove_chroma_key_locally_to_transparent_foreground",
+      "generate_white_negative_from_keyed_foreground_and_resize_72",
+      "locally_compose_unscaled_foreground_over_background_to_512",
+      "scale_transparent_foreground_subject_to_70_percent_then_canvas_to_512",
+      "locally_compose_foreground_over_background_to_512"
+    ],
     "foreground_source": "structured_json.foreground_elements",
     "background_source": "structured_json.background_elements",
     "consistency_target": "accepted_composite | independent_layer_variant",
@@ -144,12 +160,22 @@
     "key_color": "#ff00ff",
     "key_color_reason": "selected for maximum distance from all foreground opaque and semi-transparent colors",
     "key_color_candidates": ["#00ff00", "#ff00ff", "#0000ff", "#ff0000", "#ffff00", "#00ffff"],
+    "key_color_policy": {
+      "green_screen_means_chroma_key_unless_user_explicitly_requires_literal_green": true,
+      "choose_max_color_distance_from_foreground": true,
+      "forbid_literal_green_when_subject_contains_green_or_cyan_green": true,
+      "recommended_for_blue_or_cyan_subject": "#ff00ff",
+      "recommended_for_green_or_cyan_green_subject": "#ff00ff | #0000ff | #ffff00",
+      "literal_green_allowed_only_when_no_large_foreground_green_overlap": true
+    },
     "extraction_strategy": "adaptive_chroma_key | local_segmentation_matte | provided_alpha_mask",
     "foreground_derivation": {
       "source": "structured_json.foreground_elements",
       "method": "generate_subject_variant_on_chroma_key",
       "visual_lock_source": "composite_source | structured_json_only",
       "forbid_new_foreground_variant_when_composite_source_exists": true,
+      "must_generate_visible_variant_when_only_reference_image_exists": true,
+      "fail_if_only_background_replaced_in_reference_only": true,
       "foreground_visual_lock": {
         "required_when_composite_source_exists": true,
         "locked_overall_palette": [],
@@ -170,15 +196,23 @@
       "forbid_reference_cutout_as_generation_substitute": true,
       "forbid_key_color_inside_subject": true,
       "key_color_must_not_be_subject_material": true,
-      "remove_all_key_like_pixels_unless_declared_subject_material": true,
-      "transparentize_disconnected_key_like_gaps_between_foreground_parts": true,
-      "preserve_disconnected_key_like_only_if_declared_subject_material": false,
+      "remove_edge_connected_key_color_by_default": true,
+      "remove_disconnected_key_like_pixels_only_when_declared_transparent": true,
+      "transparent_disconnected_regions": {
+        "transparent_negative_regions": [],
+        "true_cutout_regions": [],
+        "background_gaps_between_foreground_parts": []
+      },
+      "preserve_disconnected_key_like_pixels_unless_declared_transparent": true,
+      "preserve_subject_internal_key_like_material_by_default": true,
+      "forbid_auto_deleting_undeclared_internal_key_like_regions": true,
       "fill_subject_internal_holes_before_resize": true,
       "distinguish_inter_element_background_gaps_from_subject_internal_material": true,
       "fail_if_visible_key_like_pixels_remain": true,
       "work_at_original_or_higher_resolution": true,
       "keyed_intermediate": null,
       "alpha_output_original_size": null,
+      "alpha_output_before_scale": null,
       "main_element_scale_percent_after_key_removal": 70,
       "final_foreground_size_px": [512, 512],
       "verify_true_alpha": true
@@ -187,6 +221,10 @@
       "source": "structured_json.background_elements",
       "method": "generate_new_background_variant_from_json",
       "forbid_placeholder_gradient": true,
+      "must_generate_visible_background_variant_in_reference_only": true,
+      "minimum_changed_background_dimensions": 3,
+      "changed_background_dimensions": ["radial_glow_position", "gradient_center", "texture_or_dot_wave_path", "particle_distribution", "light_band_direction", "local_hue_balance", "depth_rhythm"],
+      "fail_if_reference_background_is_only_slightly_shifted_or_recolored": true,
       "work_at_original_or_higher_resolution": true,
       "opaque_output_original_size": null,
       "final_background_size_px": [512, 512],
@@ -200,7 +238,8 @@
     "shared_constraints": ["same canvas size", "same alignment", "same color space", "same lighting direction"]
   },
   "white_negative_icon": {
-    "enabled": false,
+    "enabled": true,
+    "default_enabled_unless_explicitly_disabled": true,
     "source": "foreground_keyed_source",
     "source_must_be_derived_from_composite_foreground": false,
     "source_must_be_generated_from_keyed_foreground": true,
@@ -217,16 +256,21 @@
     "require_internal_negative_space": true,
     "white_fill_regions": [],
     "transparent_negative_regions": [],
+    "true_cutout_regions": [],
+    "background_gaps_between_foreground_parts": [],
     "identity_features_to_preserve": [],
     "simplifiable_details": [],
     "minimum_negative_space_width_percent": 2,
     "forbidden": ["stroke", "outline", "shadow", "gradient", "gray", "color", "glow", "texture", "3d material", "solid blob without required negative details"]
   },
   "output": {
-    "mode": "composite | foreground_background_pair",
+    "mode": "foreground_background_pair | composite",
+    "default_mode": "foreground_background_pair",
     "final_width_px": 512,
     "final_height_px": 512,
     "format": "png",
+    "do_not_generate_final_composite_directly": true,
+    "final_composite_must_be_local_layer_composition": true,
     "requires_true_alpha": false,
     "composite_background_policy": {
       "fill_entire_canvas": true,
@@ -240,9 +284,12 @@
       "composite": null,
       "foreground_keyed_source": null,
       "foreground_green_screen": null,
+      "foreground_alpha_original_png": null,
       "foreground_alpha_png": null,
+      "foreground_alpha_70pct_512_png": null,
       "background_png": null,
       "white_negative_icon_png": null,
+      "composite_full_subject_preview": null,
       "composite_preview": null
     }
   }
@@ -252,6 +299,7 @@
 ## Reference Analysis Rules
 
 - When the user provides only a reference image, image attachment, image path, or `Files mentioned by the user` image context, treat it as a `reference_only` generation request by default. Extract JSON, then generate a new App icon variant. Do not stop at analysis, list options, or ask what to do unless the user explicitly requested analysis only or generation is blocked.
+- The original user-provided reference image is `reference_image`, not `composite_source`. Do not enable visual-lock splitting or "only replace background with key color" from the original reference unless the user explicitly says to lock that exact image, split that accepted image, or keep the subject unchanged.
 - Resolve helper script paths relative to the `img2-sc-app-icon` skill directory, not the current shell directory. For example, run `img2-sc-app-icon/scripts/match_reference_size.ps1` when the workspace root is the repository root.
 - If the reference is WebP or another format that `System.Drawing` cannot decode, use ImageMagick metadata (`magick identify`) or another structured image library to record dimensions. Do not treat a local metadata-read failure as a generation blocker when the image can still be visually inspected.
 - Distinguish semantic identity from observed shape. Record both when the reference uses an abstract symbol.
@@ -266,6 +314,10 @@
 - Record transparent corners separately from internal semi-transparent materials.
 - Preserve the reference's mask only when it is visibly part of the asset or explicitly requested.
 - In `reference_only`, preserve identity, hierarchy, style family and mask while creating a visibly new variant. Do not preserve the reference composition by default. Single primary elements must usually use stronger random direction-angle rotation, shape/pose variation, scale change, center shift, and color variation than a minor pose tweak. Multiple-element icons should reorganize relative positions, angles, overlap order, scale, spacing, and colors as long as the main element remains readable.
+- In `reference_only`, a keyed foreground pass that only removes/replaces the original background is a failure. The keyed foreground must itself be the new variant layer unless a real `composite_source` was explicitly selected.
+- Treat "green screen" as a generic chroma-key request unless the user explicitly asks for literal green. Select the key color by maximum distance from the generated foreground colors; if the foreground contains green or cyan-green materials, do not use literal green as the key color.
+- For local key removal, remove edge-connected key-color regions by default. Disconnected key-like regions are removed only when the structured JSON declares them as `transparent_negative_regions`, `true_cutout_regions`, or `background_gaps_between_foreground_parts`. Undeclared internal key-like regions must be preserved or fixed in the keyed source; do not auto-delete them.
+- In `reference_only`, the background layer must also be visibly varied while preserving the same background style family. Change at least three dimensions such as glow position, gradient center, texture/dot-wave path, particle distribution, light-band direction, local hue balance, or depth rhythm.
 - Prefer approximately `18-42°` planar rotation for single primary elements, or `12-32°` for main elements and `18-48°` for secondary elements in multi-element compositions. Use smaller changes only when the subject is already diagonal, strict geometry, or near the safe-area boundary, and compensate with stronger scale, position, color, shape, or decoration changes.
 - Preserve semantic orientation and functional relationships. Do not reverse directional symbols, vehicle travel direction, animal head/tail direction, tool assembly, object stacking or front/back layer meaning.
 - Do not perspective-warp text, numbers, brand marks, flags, arrows, strict symmetric badges or precision geometry unless the user explicitly requests it.
@@ -283,8 +335,10 @@
 
 ## Foreground And Background Pair
 
-- Enable `layer_split` only when the user requests separate foreground/background output or when the requested deliverable clearly requires movable layers.
-- For split output, derive separate generation passes from the structured JSON. Extract primary foreground elements into a keyed subject-variant pass, and extract background information into a new background-variant pass.
+- Enable `layer_split` by default for normal app-icon generation unless the user explicitly requests composite-only output.
+- Do not ask the image model to generate the final composite directly in the default flow. Generate separate passes from the structured JSON, then create the composite preview locally from the transparent foreground and opaque background.
+- The default order is fixed: extract structured JSON, generate keyed foreground from foreground elements, generate and resize opaque background from background elements, remove key color locally, generate the white negative icon from the transparent foreground and resize the whole canvas to `72x72`, scale the transparent foreground subject to `70%` and normalize the canvas to `512x512`, then locally compose foreground over background to `512x512`.
+- For split output, derive separate generation passes from the structured JSON. Extract primary foreground elements into a keyed subject-variant pass, and extract background information into a background pass.
 - Do not use local rough masks, hand-drawn polygon mattes, simple reference-image cutouts, or local rotate/scale transforms as substitutes for a generated keyed foreground variant. If the image generation tool is unavailable, stop and report that generation is blocked instead of delivering a fallback asset.
 - Assign every visible element to foreground or background before generation. Keep only the primary subject and subject-attached effects in the foreground.
 - Before generation, verify that `foreground_elements` and `background_elements` do not contain duplicate element identities. Fix the JSON first if the same element appears in both lists.
@@ -334,6 +388,11 @@ Reject the result when:
 - A `reference_only` result copies the reference pose, silhouette, overlap, center of mass, or element placement too closely without meaningful changes in at least three independent dimensions.
 - A repeated `reference_only` generation reuses the same angle, scale, position, overlap, and color parameters instead of sampling a fresh variation.
 - A `reference_only` result only changes rendering quality, lighting, minor highlights, small decorative dots, or a subtle accent color while keeping the same layout and subject pose.
+- A `reference_only` keyed foreground merely replaces the reference image background with chroma key while preserving the same subject pose, element placement, overlap, and scale.
+- A `reference_only` background layer merely copies the reference background layout with tiny color shifts, small translation, or a few extra random particles.
+- A keyed foreground uses literal green while the foreground subject contains green/cyan-green material and a safer key color was available.
+- Local key removal deletes disconnected internal key-like subject material that was not declared as transparent negative space, true cutout, or inter-element background gap.
+- Local key removal preserves disconnected key-like pixels that were explicitly declared as transparent negative space, true cutout, or inter-element background gap.
 - Rotation or perspective makes the subject distorted, hides identity-defining parts, reverses semantic direction or breaks relationships.
 - Accent colors remain an overly close copy when adjustment was safe and appropriate.
 - Accent colors overpower the primary palette, reduce contrast, break material readability or alter protected/semantic colors.

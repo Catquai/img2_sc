@@ -1,0 +1,160 @@
+{
+  "input_mode": "reference_only",
+  "reference_image": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\codex-clipboard-a94568a7-cca9-4c53-a1e0-a009eacc0950.png",
+  "canvas": {
+    "aspect_ratio": "1:1",
+    "source_width_px": 240,
+    "source_height_px": 240,
+    "shape": "square"
+  },
+  "platform_intent": {
+    "platform": "cross_platform",
+    "usage": "primary_app_icon",
+    "platform_applies_mask": true
+  },
+  "app_identity": {
+    "concept": "file upload / media import",
+    "primary_symbol": "open folder tray with upward upload arrow and media/document cards",
+    "recognition_at_small_size": "yellow folder tray, upward green/cyan arrow, white media cards"
+  },
+  "style": {
+    "family": "soft_3d",
+    "lighting": "upper-left glossy studio light",
+    "materials": [
+      "rounded plastic folder",
+      "white beveled cards",
+      "glossy upload arrow"
+    ],
+    "edge_treatment": "rounded bevels",
+    "shadow": "soft attached shadows",
+    "detail_level": "medium"
+  },
+  "elements": [
+    {
+      "id": "folder_tray",
+      "identity": "deep rounded yellow/orange upload folder tray",
+      "layer": 3
+    },
+    {
+      "id": "upload_arrow",
+      "identity": "upward curved turquoise/lime upload arrow",
+      "layer": 4
+    },
+    {
+      "id": "image_card",
+      "identity": "photo card with mountain and sun",
+      "layer": 2
+    },
+    {
+      "id": "play_card",
+      "identity": "media card with blue play triangle",
+      "layer": 2
+    },
+    {
+      "id": "document_card",
+      "identity": "document card with lines and folded corner",
+      "layer": 2
+    },
+    {
+      "id": "upload_badge",
+      "identity": "round upload badge on folder",
+      "layer": 5
+    }
+  ],
+  "composition_variation": {
+    "subject_structure": "multiple_elements",
+    "randomization": {
+      "required_every_generation": true,
+      "sampled_rotation_degrees": {
+        "image_card": "tilted left",
+        "play_card": "upright large",
+        "document_card": "tilted right",
+        "arrow": "curved upward"
+      },
+      "sampled_scale_delta": {
+        "subject_after_alpha": 0.7
+      },
+      "sampled_position_shift_percent": {
+        "folder": "lower wider tray",
+        "cards": "spread across top"
+      },
+      "sampled_color_shift": {
+        "arrow": "turquoise/lime",
+        "folder": "gold/orange with teal base"
+      },
+      "minimum_changed_dimensions": 3,
+      "changed_dimensions": [
+        "shape",
+        "position",
+        "overlap",
+        "rotation",
+        "scale",
+        "color"
+      ],
+      "must_differ_from_reference": true
+    }
+  },
+  "layer_split": {
+    "enabled": true,
+    "reference_image": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\codex-clipboard-a94568a7-cca9-4c53-a1e0-a009eacc0950.png",
+    "reference_image_is_not_composite_source_by_default": true,
+    "composite_source": null,
+    "foreground_elements": [
+      "folder_tray",
+      "upload_arrow",
+      "image_card",
+      "play_card",
+      "document_card",
+      "upload_badge",
+      "subject-attached highlights and shadows"
+    ],
+    "background_elements": [
+      "blue-cyan gradient",
+      "diagonal dotted wave bands",
+      "small glow particles"
+    ],
+    "foreground_exclusions": [
+      "background gradient",
+      "halftone dots",
+      "distant particles"
+    ],
+    "background_exclusions": [
+      "folder",
+      "arrow",
+      "cards",
+      "badge",
+      "subject silhouette"
+    ],
+    "key_color": "#00ff00"
+  },
+  "white_negative_icon": {
+    "enabled": true,
+    "source": "foreground_keyed_source",
+    "final_size_px": [
+      72,
+      72
+    ],
+    "require_internal_negative_space": true,
+    "resize_policy": "resize_full_canvas_to_final_size",
+    "forbid_trim_and_subject_shrink": true
+  },
+  "output": {
+    "mode": "foreground_background_pair",
+    "default_mode": "foreground_background_pair",
+    "final_width_px": 512,
+    "final_height_px": 512,
+    "do_not_generate_final_composite_directly": true,
+    "final_composite_must_be_local_layer_composition": true,
+    "files": {
+      "foreground_keyed_source": "F:\\img2-sc\\test-img\\app-icon-layer-output\\folder_upload_variant_default_flow_20260610_fixed\\folder_upload_foreground_keyed_source.png",
+      "foreground_alpha_original_png": "F:\\img2-sc\\test-img\\app-icon-layer-output\\folder_upload_variant_default_flow_20260610\\folder_upload_foreground_alpha_original.png",
+      "foreground_alpha_70pct_512_png": "F:\\img2-sc\\test-img\\app-icon-layer-output\\folder_upload_variant_default_flow_20260610_fixed\\folder_upload_foreground_70pct_512.png",
+      "background_png": "F:\\img2-sc\\test-img\\app-icon-layer-output\\folder_upload_variant_default_flow_20260610_fixed\\folder_upload_background_512.png",
+      "white_negative_icon_png": "F:\\img2-sc\\test-img\\app-icon-layer-output\\folder_upload_variant_default_flow_20260610_fixed\\folder_upload_white_negative_from_keyed_72.png",
+      "composite_preview": "F:\\img2-sc\\test-img\\app-icon-layer-output\\folder_upload_variant_default_flow_20260610_fixed\\folder_upload_composite_preview_512.png",
+      "contact_sheet": "F:\\img2-sc\\test-img\\app-icon-layer-output\\folder_upload_variant_default_flow_20260610_fixed\\folder_upload_fixed_contact_sheet.png",
+      "foreground_alpha_unscaled_512_png": "F:\\img2-sc\\test-img\\app-icon-layer-output\\folder_upload_variant_default_flow_20260610_fixed\\folder_upload_foreground_alpha_unscaled_512.png",
+      "composite_full_subject_preview": "F:\\img2-sc\\test-img\\app-icon-layer-output\\folder_upload_variant_default_flow_20260610_fixed\\folder_upload_composite_full_subject_512.png"
+    }
+  }
+}

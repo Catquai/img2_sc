@@ -1,0 +1,171 @@
+{
+  "input_mode": "reference_only",
+  "reference_image": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\codex-clipboard-a94568a7-cca9-4c53-a1e0-a009eacc0950.png",
+  "canvas": {
+    "aspect_ratio": "1:1",
+    "source_width_px": 240,
+    "source_height_px": 240,
+    "shape": "square"
+  },
+  "platform_intent": {
+    "platform": "cross_platform",
+    "usage": "primary_app_icon",
+    "platform_applies_mask": true
+  },
+  "app_identity": {
+    "concept": "trading margin and risk controls",
+    "primary_symbol": "dark finance dashboard tile with margin gauges and risk shield",
+    "recognition_at_small_size": "dark rounded panel, chart, sliders, shield/check, cyan/emerald accents"
+  },
+  "style": {
+    "family": "soft_3d",
+    "lighting": "upper-left studio highlight",
+    "materials": [
+      "graphite glass panel",
+      "glossy emerald/cyan controls",
+      "soft bevel plastic"
+    ],
+    "edge_treatment": "rounded beveled panels",
+    "shadow": "soft attached drop shadows",
+    "detail_level": "medium"
+  },
+  "elements": [
+    {
+      "id": "dashboard_tile",
+      "identity": "dark rounded dashboard control panel",
+      "layer": 2,
+      "required_traits": [
+        "graphite soft-3D tile",
+        "rounded bevel",
+        "single centered object"
+      ]
+    },
+    {
+      "id": "chart_panel",
+      "identity": "trading candlestick/order-flow chart panel",
+      "layer": 3,
+      "required_traits": [
+        "green/red bars",
+        "non-readable chart",
+        "small grid"
+      ]
+    },
+    {
+      "id": "margin_sliders",
+      "identity": "two margin buffer gauge sliders",
+      "layer": 4,
+      "required_traits": [
+        "cyan/emerald bars",
+        "round knobs",
+        "risk-control semantics"
+      ]
+    },
+    {
+      "id": "risk_shield",
+      "identity": "shield with check mark for risk protection",
+      "layer": 4,
+      "required_traits": [
+        "shield outline",
+        "check mark",
+        "emerald accent"
+      ]
+    },
+    {
+      "id": "warning_accent",
+      "identity": "small amber warning indicator",
+      "layer": 5,
+      "required_traits": [
+        "small secondary warning mark"
+      ]
+    }
+  ],
+  "composition_variation": {
+    "subject_structure": "multiple_elements",
+    "randomization": {
+      "required_every_generation": true,
+      "sampled_rotation_degrees": {
+        "dashboard_tile": -7
+      },
+      "sampled_scale_delta": {
+        "subject_after_alpha": 0.7
+      },
+      "sampled_position_shift_percent": {
+        "center_of_mass": "centered icon tile, not horizontal screenshot strip"
+      },
+      "sampled_color_shift": {
+        "primary": "black graphite",
+        "accents": "emerald/cyan with amber"
+      },
+      "minimum_changed_dimensions": 3,
+      "changed_dimensions": [
+        "shape",
+        "layout",
+        "rotation",
+        "scale",
+        "color",
+        "background_layout"
+      ],
+      "must_differ_from_reference": true
+    }
+  },
+  "layer_split": {
+    "enabled": true,
+    "reference_image": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\codex-clipboard-a94568a7-cca9-4c53-a1e0-a009eacc0950.png",
+    "reference_image_is_not_composite_source_by_default": true,
+    "composite_source": null,
+    "foreground_elements": [
+      "dashboard_tile",
+      "chart_panel",
+      "margin_sliders",
+      "risk_shield",
+      "warning_accent",
+      "subject-attached shadows"
+    ],
+    "background_elements": [
+      "dark graphite/navy gradient",
+      "subtle perspective grid",
+      "faint trading atmosphere",
+      "tiny cyan/emerald data particles"
+    ],
+    "foreground_exclusions": [
+      "background gradient",
+      "grid",
+      "environment data particles"
+    ],
+    "background_exclusions": [
+      "dashboard tile",
+      "chart panel",
+      "sliders",
+      "shield",
+      "warning symbol",
+      "subject silhouette"
+    ],
+    "key_color": "#00ff00"
+  },
+  "white_negative_icon": {
+    "enabled": true,
+    "source": "foreground_alpha_png",
+    "final_size_px": [
+      72,
+      72
+    ],
+    "require_internal_negative_space": true
+  },
+  "output": {
+    "mode": "foreground_background_pair",
+    "default_mode": "foreground_background_pair",
+    "final_width_px": 512,
+    "final_height_px": 512,
+    "do_not_generate_final_composite_directly": true,
+    "final_composite_must_be_local_layer_composition": true,
+    "files": {
+      "foreground_keyed_source": "F:\\img2-sc\\test-img\\app-icon-layer-output\\margin_dashboard_default_flow_20260610\\margin_dashboard_foreground_keyed_source.png",
+      "foreground_alpha_original_png": "F:\\img2-sc\\test-img\\app-icon-layer-output\\margin_dashboard_default_flow_20260610\\margin_dashboard_foreground_alpha_original.png",
+      "foreground_alpha_70pct_512_png": "F:\\img2-sc\\test-img\\app-icon-layer-output\\margin_dashboard_default_flow_20260610\\margin_dashboard_foreground_70pct_512.png",
+      "background_png": "F:\\img2-sc\\test-img\\app-icon-layer-output\\margin_dashboard_default_flow_20260610\\margin_dashboard_background_512.png",
+      "white_negative_icon_png": "F:\\img2-sc\\test-img\\app-icon-layer-output\\margin_dashboard_default_flow_20260610\\margin_dashboard_white_negative_72.png",
+      "composite_preview": "F:\\img2-sc\\test-img\\app-icon-layer-output\\margin_dashboard_default_flow_20260610\\margin_dashboard_composite_preview_512.png",
+      "contact_sheet": "F:\\img2-sc\\test-img\\app-icon-layer-output\\margin_dashboard_default_flow_20260610\\margin_dashboard_contact_sheet.png"
+    }
+  }
+}
