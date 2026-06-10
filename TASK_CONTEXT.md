@@ -32,6 +32,11 @@ The skills should support:
 - Generated a cleanup feature app icon and saved the final normalized output as `test-img/cleanup_icon_generated_512x512.png`.
 - Root `app-icon-layer-output/` currently contains split-layer cleanup/broom app-icon workflow outputs that should be synced for review with the rest of the project state.
 
+### 2026-06-10 Sync Note
+
+- Added `test-img/app-icon-layer-output/folder_upload_variant_recognizable_20260610/` as the current recognizable repeated-generation folder upload diagnostic set.
+- Refined `img2-sc-app-icon` reference-only variation rules so repeated generations must differ from the previous output without deforming the folder/tray/container until it loses recognition.
+
 ### `img2-sc-app-icon`
 
 This skill handles mobile App primary icon generation and split-layer outputs.
@@ -65,6 +70,7 @@ Recent folder-upload diagnostic outcome:
 - The skill and schema now require `consistency_target: accepted_composite` when `composite_source` exists, with `foreground_visual_lock` fields for palette, badge, arrow, card, overlap, lighting, and material details.
 - The purple key-like foreground gap issue was fixed by removing disconnected key-like pixels unless JSON declares them as subject material.
 - The white negative icon was fixed by deleting edge-connected white noise before scaling the full canvas to `72x72`; `check_white_alpha_icon.ps1` now reports and fails on edge-visible pixels by default.
+- The latest recognizable repeated-generation variant confirms the rule preference: vary composition, arrow path, card arrangement, colorway, and background family before changing the core folder/tray silhouette.
 
 ### `img2-sc-frame`
 

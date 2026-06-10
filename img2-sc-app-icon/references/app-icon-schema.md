@@ -65,9 +65,13 @@
       "sampled_overlap_change": "",
       "sampled_color_shift": {},
       "minimum_changed_dimensions": 3,
-      "changed_dimensions": ["rotation", "scale", "position", "shape", "color", "decorative_layout"],
+      "changed_dimensions": ["rotation", "scale", "position", "shape", "color", "decorative_layout", "background_element_family", "background_palette"],
       "must_differ_from_reference": true,
-      "must_differ_from_previous_generation": true
+      "must_differ_from_previous_generation": true,
+      "preserve_primary_object_recognition": true,
+      "forbid_identity_breaking_container_deformation": true,
+      "prefer_non_destructive_variation_dimensions": ["composition_layout", "arrow_path_and_placement", "card_count_and_arrangement", "overlap_order", "center_of_mass_region", "subject_colorway", "accent_color_palette", "background_element_family", "background_colorway"],
+      "folder_upload_recognition_requirements": ["open pocket or tray front lip", "visible side walls", "visible inner cavity", "folder tab or readable container silhouette", "readable upward upload arrow", "media/document cards remain readable"]
     },
     "single_primary_element_policy": {
       "apply_when": "one dominant subject or one merged symbol",
@@ -87,7 +91,7 @@
       "minimum_distance_or_overlap_change_percent": 15,
       "color_variation": "vary main and secondary palettes without breaking semantic colors"
     },
-    "forbidden": ["identity loss", "semantic direction reversal", "important-part occlusion", "safe-area overflow", "main-secondary hierarchy confusion"]
+    "forbidden": ["identity loss", "semantic direction reversal", "identity-breaking deformation", "folder/tray becomes a thin vertical box or abstract pillar", "important-part occlusion", "safe-area overflow", "main-secondary hierarchy confusion"]
   },
   "pose_variation": {
     "apply_in_reference_only": true,
@@ -306,6 +310,7 @@
 - Record exact count and orientation of meaningful objects. Separate immutable `semantic_orientation` from changeable `visual_pose`.
 - Classify the composition as `single_primary_element` or `multiple_elements` before generation. For a single primary element, create a clearly different but recognizable shape, pose, random direction-angle rotation, scale, center of mass, and color treatment. For multiple elements, preserve the main element identity while visibly reorganizing element positions, angles, scale relationships, overlap order, spacing, and colors.
 - Every `reference_only` generation must sample fresh random variation parameters and record them in `composition_variation.randomization`. At least three independent variation dimensions must change visibly. Do not reuse a fixed template pose, the reference pose, the reference element placement, or the previous generation's parameter set.
+- Repeated `reference_only` generations must differ from the previous output without breaking the primary object's semantic identity. Prefer non-destructive dimensions such as composition layout, arrow path, card arrangement, overlap order, subject colorway, accent colors, background element family, background palette, and background layout before changing the core container silhouette.
 - Identify decorative accents and record them in `decorative_variation`. Accents include sparkles, light dots, particles, small badges, local highlights, background glints, shine fragments, and non-semantic ornamentation.
 - Decorative accents should vary randomly in every generation. Change count, position, scale, rotation, opacity, brightness, color, or small shape details while keeping them visually secondary and style-consistent.
 - During reference analysis, assign every visible element to foreground or background before any split generation. Write this assignment into `layer_split.foreground_elements`, `layer_split.background_elements`, `foreground_exclusions`, and `background_exclusions`.
@@ -314,6 +319,7 @@
 - Record transparent corners separately from internal semi-transparent materials.
 - Preserve the reference's mask only when it is visibly part of the asset or explicitly requested.
 - In `reference_only`, preserve identity, hierarchy, style family and mask while creating a visibly new variant. Do not preserve the reference composition by default. Single primary elements must usually use stronger random direction-angle rotation, shape/pose variation, scale change, center shift, and color variation than a minor pose tweak. Multiple-element icons should reorganize relative positions, angles, overlap order, scale, spacing, and colors as long as the main element remains readable.
+- For folder/upload icons, the folder or tray is an identity-defining object. It must keep a readable open pocket, front lip, side walls, inner cavity, and folder/container silhouette. Do not turn it into a thin vertical box, abstract pillar, generic paper box, or any shape that is no longer clearly a folder/upload container. If silhouette change would reduce recognizability, use composition, color, arrow, card, and background changes instead.
 - In `reference_only`, a keyed foreground pass that only removes/replaces the original background is a failure. The keyed foreground must itself be the new variant layer unless a real `composite_source` was explicitly selected.
 - Treat "green screen" as a generic chroma-key request unless the user explicitly asks for literal green. Select the key color by maximum distance from the generated foreground colors; if the foreground contains green or cyan-green materials, do not use literal green as the key color.
 - For local key removal, remove edge-connected key-color regions by default. Disconnected key-like regions are removed only when the structured JSON declares them as `transparent_negative_regions`, `true_cutout_regions`, or `background_gaps_between_foreground_parts`. Undeclared internal key-like regions must be preserved or fixed in the keyed source; do not auto-delete them.
@@ -387,6 +393,7 @@ Reject the result when:
 - Important parts cross the safe area or are clipped.
 - A `reference_only` result copies the reference pose, silhouette, overlap, center of mass, or element placement too closely without meaningful changes in at least three independent dimensions.
 - A repeated `reference_only` generation reuses the same angle, scale, position, overlap, and color parameters instead of sampling a fresh variation.
+- A repeated `reference_only` generation achieves difference mainly by deforming the primary folder/tray/container until it is no longer recognizable instead of using composition, color, foreground relationship, or background variation.
 - A `reference_only` result only changes rendering quality, lighting, minor highlights, small decorative dots, or a subtle accent color while keeping the same layout and subject pose.
 - A `reference_only` keyed foreground merely replaces the reference image background with chroma key while preserving the same subject pose, element placement, overlap, and scale.
 - A `reference_only` background layer merely copies the reference background layout with tiny color shifts, small translation, or a few extra random particles.
@@ -394,6 +401,7 @@ Reject the result when:
 - Local key removal deletes disconnected internal key-like subject material that was not declared as transparent negative space, true cutout, or inter-element background gap.
 - Local key removal preserves disconnected key-like pixels that were explicitly declared as transparent negative space, true cutout, or inter-element background gap.
 - Rotation or perspective makes the subject distorted, hides identity-defining parts, reverses semantic direction or breaks relationships.
+- A folder/upload result turns the folder or tray into a thin vertical holder, abstract column, generic box, or otherwise loses the readable open pocket/front lip/inner cavity/container silhouette.
 - Accent colors remain an overly close copy when adjustment was safe and appropriate.
 - Accent colors overpower the primary palette, reduce contrast, break material readability or alter protected/semantic colors.
 - Decorative accents are copied mechanically from the reference with no visible random change.

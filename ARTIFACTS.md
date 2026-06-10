@@ -44,12 +44,20 @@ This file lists selected final image outputs that are useful to sync through Git
   - `folder_upload_white_negative_preview_dark_pillow.png`: dark preview for visually inspecting the 72x72 white negative icon.
   - `folder_upload_white_negative_normalized_edge_clean.png`: cleaned normalized negative source after removing edge-connected white noise, retained as a small diagnostic artifact.
   - `folder_upload_white_negative_72_zoom8.png`: enlarged nearest-neighbor preview for reviewing internal negative-space structure.
+- `test-img/app-icon-layer-output/folder_upload_variant_recognizable_20260610/`: recognizable repeated-generation folder upload variant set kept for workflow review.
+  - `folder_upload_structured_prompt.json`: structured prompt and variation record for the run.
+  - `folder_upload_foreground_keyed_source.png`: generated keyed foreground variant.
+  - `folder_upload_foreground_70pct_512_clean.png`: cleaned 70% foreground layer on a transparent 512x512 canvas.
+  - `folder_upload_background_512.png`: opaque generated 512x512 background layer.
+  - `folder_upload_composite_preview.png`: recomposed foreground/background preview.
+  - `folder_upload_negative_72.png`: checked 72x72 white negative icon.
 
 Latest folder-upload conclusion:
 
 - The foreground mismatch happened before post-processing: `foreground_keyed_source` was an independent second generation rather than a visual-lock recreation of `composite_source`.
 - `img2-sc-app-icon` now requires `foreground_visual_lock` whenever an accepted `composite_source` exists, so the foreground pass must match the composite foreground's color, badge arrow, direction, card contents, lighting, and overlap.
 - `check_white_alpha_icon.ps1` now reports `edge_visible_pixels` and fails by default when white negative icons contain visible edge-touching noise.
+- Repeated `reference_only` generations should differ from the previous output through non-destructive dimensions such as composition layout, arrow path, card arrangement, colorway, and background family before changing the core folder/tray silhouette.
 
 ## Git Sync Rule
 

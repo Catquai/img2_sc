@@ -1,0 +1,118 @@
+{
+  "input_mode": "reference_only",
+  "reference_image": "reference.png",
+  "canvas": {
+    "aspect_ratio": "1:1",
+    "source_width_px": 240,
+    "source_height_px": 240,
+    "output_width_px": 512,
+    "output_height_px": 512
+  },
+  "app_identity": {
+    "category": "file upload / media upload",
+    "primary_symbol": "open folder or tray containing media/document cards with upward upload arrow",
+    "semantic_orientation": "upload arrow points upward"
+  },
+  "style": {
+    "family": "polished 3D mobile app icon",
+    "material": "soft bevel plastic/clay, rounded cards, glossy highlights",
+    "small_size_readability": "primary folder, arrow, and cards remain identifiable at app icon size"
+  },
+  "foreground_elements": [
+    {
+      "id": "open_folder_tray",
+      "required_traits": [
+        "recognizable open pocket",
+        "front lip",
+        "side walls",
+        "visible inner cavity",
+        "yellow/orange container family"
+      ],
+      "forbidden_changes": [
+        "thin vertical holder",
+        "abstract pillar",
+        "generic paper box",
+        "closed or unreadable container"
+      ]
+    },
+    {
+      "id": "upload_arrow",
+      "required_traits": [
+        "upward direction",
+        "curved mint-to-teal body",
+        "emerges from inside folder"
+      ]
+    },
+    {
+      "id": "media_cards",
+      "required_traits": [
+        "two white rounded cards",
+        "fan arrangement",
+        "image and play symbols readable"
+      ]
+    },
+    {
+      "id": "front_upload_badge",
+      "required_traits": [
+        "round badge on folder front",
+        "contains upward upload mark"
+      ]
+    }
+  ],
+  "background_elements": [
+    {
+      "id": "digital_gradient_field",
+      "required_traits": [
+        "fully opaque cyan/blue/teal app icon background",
+        "radial aqua glow",
+        "structured dotted wave mesh",
+        "sparse light particles"
+      ],
+      "forbidden_elements": [
+        "folder",
+        "arrow",
+        "cards",
+        "subject silhouette",
+        "subject-shaped hole",
+        "foreground decorative duplicates"
+      ]
+    }
+  ],
+  "composition_variation": {
+    "subject_structure": "multiple_elements",
+    "changed_dimensions": [
+      "folder perspective and front lip width",
+      "card count and fan arrangement",
+      "arrow path and placement",
+      "badge position and colorway",
+      "background element family",
+      "background palette and glow position"
+    ],
+    "preserve_primary_object_recognition": true,
+    "forbid_identity_breaking_container_deformation": true
+  },
+  "layer_split": {
+    "enabled": true,
+    "key_color": "#ff00ff",
+    "foreground_keyed_source": "folder_upload_foreground_keyed_source.png",
+    "foreground_alpha_original": "folder_upload_foreground_alpha_original.png",
+    "foreground_70pct_512": "folder_upload_foreground_70pct_512_clean.png",
+    "background_512": "folder_upload_background_512.png",
+    "white_negative_72": "folder_upload_negative_72.png",
+    "composite_full_subject_preview": "folder_upload_composite_full_subject_preview.png",
+    "composite_preview": "folder_upload_composite_preview.png"
+  },
+  "validation": {
+    "foreground_alpha_512": {
+      "transparent_pixels": 188911,
+      "partial_alpha_pixels": 1286,
+      "opaque_pixels": 71947
+    },
+    "white_negative_72": {
+      "transparent_pixels": 2669,
+      "visible_pixels": 2515,
+      "non_white_visible_pixels": 0,
+      "edge_visible_pixels": 0
+    }
+  }
+}
