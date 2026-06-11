@@ -1,0 +1,73 @@
+{
+  "input_mode": "reference_only",
+  "reference_image": "reference.png",
+  "canvas": {
+    "aspect_ratio": "1:1",
+    "final_size": "512x512"
+  },
+  "app_identity": {
+    "semantic": "virus protection and device cleaning",
+    "primary_subject": "protective shield containing a cleaning broom"
+  },
+  "style": {
+    "rendering": "polished glossy app icon",
+    "lighting": "soft frontal highlight with cool rim light",
+    "palette": ["azure blue", "royal blue", "pearl white"]
+  },
+  "layer_split": {
+    "foreground_elements": [
+      "blue protective shield",
+      "pearl-white shield frame",
+      "white cleaning broom",
+      "subject-attached highlights and shadows"
+    ],
+    "background_elements": [
+      "blue opaque gradient field",
+      "soft central radial glow",
+      "concentric technology rings",
+      "radial tick ring",
+      "sparse peripheral light dots"
+    ],
+    "foreground_exclusions": [
+      "technology rings",
+      "background light dots",
+      "blue background field"
+    ],
+    "background_exclusions": [
+      "shield",
+      "broom",
+      "subject silhouette",
+      "subject shadow or ghost"
+    ]
+  },
+  "foreground_key": {
+    "color": "#ff00ff",
+    "reason": "maximum color separation from the blue and white foreground"
+  },
+  "white_negative_icon": {
+    "source": "from foreground_keyed_source",
+    "required_internal_negative_features": [
+      "shield inner-face separation",
+      "broom handle and brush-head separation",
+      "brush bristle divisions"
+    ],
+    "final_size": "72x72",
+    "resize_rule": "resize the whole canvas only; do not additionally shrink the subject"
+  },
+  "outputs": {
+    "foreground_keyed_source": "virusfree_foreground_keyed_source.png",
+    "foreground_alpha_original": "virusfree_foreground_alpha_original.png",
+    "foreground_full_512": "virusfree_foreground_full_512.png",
+    "foreground_70pct_512": "virusfree_foreground_70pct_512.png",
+    "background_512": "virusfree_background_512.png",
+    "white_negative_icon_72": "virusfree_negative_72.png",
+    "restored_app_icon_512": "virusfree_restored_app_icon_512.png"
+  },
+  "validation": {
+    "background_fully_opaque": true,
+    "foreground_has_real_alpha": true,
+    "negative_visible_pixels_are_pure_white": true,
+    "negative_background_is_transparent": true,
+    "restored_icon_created_by_local_layer_composition": true
+  }
+}

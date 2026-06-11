@@ -38,7 +38,7 @@ def main() -> None:
         with Image.open(source_path) as source_image:
             rgba = source_image.convert("RGBA")
             result = Image.new("RGBA", rgba.size)
-            result.putdata([recolor_pixel(pixel) for pixel in rgba.getdata()])
+            result.putdata([recolor_pixel(pixel) for pixel in rgba.get_flattened_data()])
             result.save(OUTPUT / source_path.name, format="PNG")
 
     errors = []
@@ -54,7 +54,7 @@ def main() -> None:
                 source_rgba.getchannel("A"), output_rgba.getchannel("A")
             ).getbbox():
                 errors.append(f"alpha:{source_path.name}")
-            if ImageChops.difference(source_rgba, output_rgba).getbbox():
+            if ImageChops.difference(source_rgba.convert("RGB"), output_rgba.convert("RGB")).getbbox():
                 changed += 1
 
     names_equal = [path.name for path in files] == [path.name for path in output_files]
