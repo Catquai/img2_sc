@@ -1,0 +1,89 @@
+{
+  "audit_target": "reference_only folder upload icon",
+  "audit_result": "reject_current_tray_result",
+  "reason": "The generated foreground used tray/deep-container semantics even though the reference should be classified as a flat file-folder pocket.",
+  "correct_primary_container_semantics": {
+    "id": "flat_folder_pocket",
+    "prompt_phrase": "flat yellow file folder pocket with front panel, rear flap, angled open mouth, shallow pocket, and right folded side flap",
+    "required_traits": [
+      "flat yellow/orange folder front panel",
+      "rear folder flap/back panel",
+      "angled open mouth",
+      "shallow pocket relationship",
+      "right folded side flap or folder tab if visible",
+      "cards protrude from behind the front panel",
+      "upward upload arrow attached to or emerging from the folder face"
+    ],
+    "forbidden_traits": [
+      "deep tray",
+      "storage bin",
+      "basket",
+      "box frame",
+      "side-wall container",
+      "thick rectangular rim",
+      "visible deep inner cavity",
+      "generic paper box",
+      "thin vertical holder",
+      "abstract pillar"
+    ]
+  },
+  "foreground_elements": [
+    {
+      "id": "flat_yellow_file_folder_pocket",
+      "semantic_role": "primary_container",
+      "layer": "foreground",
+      "must_preserve": [
+        "front face panel",
+        "rear flap",
+        "folder-like angled opening",
+        "shallow pocket silhouette"
+      ]
+    },
+    {
+      "id": "green_upward_upload_arrow",
+      "semantic_role": "primary_action_symbol",
+      "layer": "foreground",
+      "must_preserve": [
+        "upward direction",
+        "curved lower stem",
+        "arrowhead on folder/front area"
+      ]
+    },
+    {
+      "id": "two_white_media_cards",
+      "semantic_role": "secondary_content",
+      "layer": "foreground",
+      "must_preserve": [
+        "two cards visible above folder",
+        "blue image/play symbols",
+        "cards sit behind folder front panel"
+      ]
+    }
+  ],
+  "background_elements": [
+    {
+      "id": "blue_gradient_dotted_wave_background",
+      "semantic_role": "background",
+      "layer": "background",
+      "must_not_include": [
+        "folder",
+        "arrow",
+        "cards",
+        "subject silhouette",
+        "subject-shaped hole"
+      ]
+    }
+  ],
+  "failure_in_previous_prompt": [
+    "Used the ambiguous phrase 'open file folder / upload tray'.",
+    "Required visible side walls and visible inner cavity.",
+    "Allowed deep container geometry not present in the reference.",
+    "Did not preserve the resolved flat_folder_pocket semantics exactly."
+  ],
+  "next_generation_prompt_constraints": [
+    "Use 'flat yellow file folder pocket', never 'tray'.",
+    "Do not mention side walls, deep inner cavity, storage bin, basket, or box frame.",
+    "Keep the file-folder front panel dominant.",
+    "Make variation through card arrangement, arrow path, palette, rotation, and background only."
+  ]
+}
