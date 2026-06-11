@@ -1,0 +1,130 @@
+{
+  "input_mode": "reference_only",
+  "input_image_role": {
+    "reference.png": "reference_image"
+  },
+  "canvas": {
+    "target_size": "512x512",
+    "working_generation_size": "1024x1024",
+    "aspect_ratio": "1:1",
+    "final_shape": "square app icon design master",
+    "alpha_policy": {
+      "foreground": "transparent PNG after local chroma-key removal",
+      "background": "fully opaque PNG",
+      "negative": "pure white visible pixels on transparent PNG"
+    }
+  },
+  "platform_intent": {
+    "platform": "cross_platform",
+    "usage": "mobile app launcher icon",
+    "mask_strategy": "do not bake OS rounded corners into the output"
+  },
+  "app_identity": {
+    "category": "video player / media creation",
+    "primary_metaphor": "glowing play triangle integrated with film and clapperboard language",
+    "semantic_orientation": "play triangle points right; film elements communicate video/media"
+  },
+  "style": {
+    "render_family": "premium soft 3D neon icon",
+    "materials": ["translucent glass", "soft plastic", "glowing beveled edges"],
+    "lighting": "dark cinematic lighting with magenta, violet, blue, and warm peach glow",
+    "texture": "smooth gradients, subtle rim light, soft bloom, no text"
+  },
+  "composition_variation": {
+    "structure": "multiple_elements",
+    "randomization": {
+      "angle": "main play triangle rotated slightly counterclockwise less than the reference, clapper slate opens from upper-left toward upper-right",
+      "scale": "play triangle is slightly smaller relative to the film frame, leaving more visible side film perforations",
+      "position": "center of mass shifted a little lower-right from reference",
+      "color": "cooler blue-violet frame with coral-pink highlights and a peach-yellow play tip",
+      "decoration_layout": "fewer large sparkles, more small purple pin lights clustered around upper-left and lower-right"
+    }
+  },
+  "elements": [
+    {
+      "id": "play_triangle",
+      "identity": "rounded right-pointing play button",
+      "bounds_percent": {"x": 29, "y": 27, "w": 48, "h": 48},
+      "layer": "foreground",
+      "required_traits": ["large rounded triangle", "right-pointing", "soft glassy bevel", "pink to peach gradient", "bright rim highlight"],
+      "completeness": "entire triangle visible, not cropped"
+    },
+    {
+      "id": "film_frame",
+      "identity": "rounded rectangular film-frame body with side perforations",
+      "bounds_percent": {"x": 16, "y": 27, "w": 70, "h": 52},
+      "layer": "foreground",
+      "required_traits": ["dark violet body", "left and right film perforation holes", "large dark inner viewing window", "glowing magenta-blue edges"],
+      "completeness": "both vertical film sides recognizable"
+    },
+    {
+      "id": "clapper_slate",
+      "identity": "diagonal striped clapperboard top arm",
+      "bounds_percent": {"x": 17, "y": 12, "w": 70, "h": 18},
+      "layer": "foreground",
+      "required_traits": ["rounded diagonal bar", "alternating violet and pink stripes", "soft translucent highlight"],
+      "completeness": "bar is visible above the frame and does not merge with the background"
+    },
+    {
+      "id": "foreground_ribbon",
+      "identity": "curving film strip ribbon crossing lower foreground",
+      "bounds_percent": {"x": 2, "y": 59, "w": 96, "h": 28},
+      "layer": "foreground",
+      "required_traits": ["curved strip", "perforation cutouts", "purple to coral gradient", "partial overlap in front of frame"],
+      "completeness": "ribbon may be cropped by canvas edges but must remain readable as film"
+    },
+    {
+      "id": "cinematic_background",
+      "identity": "deep dark neon media background",
+      "bounds_percent": {"x": 0, "y": 0, "w": 100, "h": 100},
+      "layer": "background",
+      "required_traits": ["deep navy-purple gradient", "soft radial glow", "subtle abstract wave shapes", "small star-like light points"],
+      "completeness": "fills the entire square canvas, fully opaque"
+    }
+  ],
+  "relationships": {
+    "overlap_order": ["cinematic_background", "film_frame", "clapper_slate", "foreground_ribbon", "play_triangle"],
+    "focus": "play_triangle remains the visual focus; film frame and clapperboard define the media identity"
+  },
+  "layer_split": {
+    "mode": "foreground_background_pair",
+    "key_color": "#00ff2a",
+    "foreground_elements": ["play_triangle", "film_frame", "clapper_slate", "foreground_ribbon"],
+    "background_elements": ["cinematic_background"],
+    "foreground_exclusions": ["background gradient", "background particles not attached to the subject"],
+    "background_exclusions": ["play triangle", "film frame", "clapper slate", "foreground film ribbon", "foreground glow silhouette"]
+  },
+  "white_negative_icon": {
+    "enabled": true,
+    "size": "72x72",
+    "source": "actual foreground_keyed_source",
+    "requirements": ["pure white visible pixels", "transparent background", "preserve play triangle, clapper top, film perforation negative spaces"]
+  },
+  "invariants": [
+    "right-pointing play symbol",
+    "film/video semantic identity",
+    "premium neon 3D soft-glow style",
+    "no text, watermark, UI screen, or device frame"
+  ],
+  "allowed_changes": [
+    "element positions and angles",
+    "film ribbon path",
+    "stripe distribution",
+    "accent colors",
+    "background glow and particle layout"
+  ],
+  "forbidden_changes": [
+    "left-pointing play triangle",
+    "literal camera lens replacing the play symbol",
+    "flat monochrome UI glyph for the main rendered assets",
+    "transparent holes in the background layer",
+    "same foreground element duplicated in both layers"
+  ],
+  "failure_criteria": [
+    "foreground is merely the reference image with background replaced by key color",
+    "foreground contains background scenery outside declared subject elements",
+    "background includes a ghost or silhouette of the subject",
+    "negative icon is solid blob without internal film/play/clapper identity",
+    "visible text or watermark appears"
+  ]
+}
