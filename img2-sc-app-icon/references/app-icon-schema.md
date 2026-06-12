@@ -196,7 +196,8 @@
       "recommended_for_green_or_cyan_green_subject": "#ff00ff | #0000ff | #ffff00",
       "literal_green_allowed_only_when_no_large_foreground_green_overlap": true
     },
-    "extraction_strategy": "adaptive_chroma_key | local_segmentation_matte | provided_alpha_mask",
+    "extraction_strategy": "adaptive_chroma_key | provided_alpha_mask",
+    "forbidden_extraction_strategy": "local_segmentation_matte_from_complete_composite | rough_mask_from_reference | threshold_cutout_from_reference | connected_component_cutout_from_reference | hand_drawn_polygon_matte",
     "foreground_derivation": {
       "source": "structured_json.foreground_elements",
       "method": "generate_subject_variant_on_chroma_key",
@@ -222,6 +223,10 @@
       "fail_if_color_or_direction_differs_from_composite": true,
       "forbid_local_rough_mask_fallback": true,
       "forbid_reference_cutout_as_generation_substitute": true,
+      "forbid_local_layer_creation_from_complete_composite": true,
+      "local_processing_allowed_only_for": ["remove_key_from_generated_or_user_provided_keyed_source", "clean_user_provided_alpha", "resize", "normalize_white_alpha", "flatten_background", "compose_preview", "validate_pixels"],
+      "complete_composite_input_local_processing_allowed_only_for": ["dimension_reading", "color_sampling", "visual_lock_analysis", "verification"],
+      "new_transparency_requires_keyed_source": true,
       "forbid_key_color_inside_subject": true,
       "key_color_must_not_be_subject_material": true,
       "remove_edge_connected_key_color_by_default": true,
@@ -349,6 +354,7 @@
 - For folder/upload icons, infer exactly one concrete container type from visual evidence and write only that value into JSON. Do not write alternatives such as `flat_folder | deep_tray_box`, `folder/tray`, `folder or container`, `open folder or tray`, or `maybe`. If the reference is a flat manila-style folder, the JSON must set `resolved_primary_container.type` to `flat_folder` and use the exact flat-folder semantic prompt: `flat yellow file folder with front panel, rear flap, angled open mouth, shallow pocket relationship, and right folded side flap`. Do not describe a flat folder as a deep tray, storage bin, basket, side-wall container, thick rectangular rim, generic box, visible high side walls, or deep inner cavity. Use tray/container/side-wall/interior-cavity language only when the reference actually shows a deep tray or box. Before writing a foreground prompt, copy `resolved_primary_container.type`, `prompt_phrase`, `required_traits`, and `forbidden_traits` verbatim into the prompt. If silhouette change would reduce recognizability, use composition, color, arrow, card, and background changes instead.
 - In `reference_only`, a keyed foreground pass that only removes/replaces the original background is a failure. The keyed foreground must itself be the new variant layer unless a real `composite_source` was explicitly selected.
 - Treat "green screen" as a generic chroma-key request unless the user explicitly asks for literal green. Select the key color by maximum distance from the generated foreground colors; if the foreground contains green or cyan-green materials, do not use literal green as the key color.
+- New transparency must come from a keyed source or a provided alpha source. If the source image is a complete composite/reference image, local segmentation, thresholding, connected components, hand-drawn mattes, or cutouts may be used only for analysis/verification, never as the delivered foreground, background, negative icon, or transparent PNG source. If no generated keyed source or provided alpha/keyed source exists, stop and generate one or report that the task is blocked.
 - For local key removal, remove edge-connected key-color regions by default. Disconnected key-like regions are removed only when the structured JSON declares them as `transparent_negative_regions`, `true_cutout_regions`, or `background_gaps_between_foreground_parts`. Undeclared internal key-like regions must be preserved or fixed in the keyed source; do not auto-delete them.
 - In `reference_only`, the background layer must also be visibly varied while preserving the same background style family. Change at least three dimensions such as glow position, gradient center, texture/dot-wave path, particle distribution, light-band direction, local hue balance, or depth rhythm.
 - Prefer approximately `18-42°` planar rotation for single primary elements, or `12-32°` for main elements and `18-48°` for secondary elements in multi-element compositions. Use smaller changes only when the subject is already diagonal, strict geometry, or near the safe-area boundary, and compensate with stronger scale, position, color, shape, or decoration changes.
@@ -372,7 +378,7 @@
 - Do not ask the image model to generate the final composite directly in the default flow. Generate separate passes from the structured JSON, then create only the unscaled-subject composite check image locally from the transparent foreground and opaque background.
 - The default order is fixed: extract structured JSON, generate keyed foreground from foreground elements, generate and resize opaque background from background elements, remove key color locally, generate the white negative icon from `foreground_keyed_source` and resize the whole canvas to `72x72`, locally compose the unscaled transparent foreground over the background as `composite_full_subject_preview`, then scale the transparent foreground subject to `70%` and normalize the foreground canvas to `512x512`. Do not generate a 70% foreground composite preview by default.
 - For split output, derive separate generation passes from the structured JSON. Extract primary foreground elements into a keyed subject-variant pass, and extract background information into a background pass.
-- Do not use local rough masks, hand-drawn polygon mattes, simple reference-image cutouts, or local rotate/scale transforms as substitutes for a generated keyed foreground variant. If the image generation tool is unavailable, stop and report that generation is blocked instead of delivering a fallback asset.
+- Do not use local rough masks, threshold masks, connected-component cutouts, hand-drawn polygon mattes, simple reference-image cutouts, or local rotate/scale transforms as substitutes for a generated keyed foreground, repaired background, or white negative icon. Local image processing is allowed only after a generated/provided keyed source or provided alpha source exists, and only for key removal, alpha cleanup, resizing, normalization, composition, and validation. If the image generation tool is unavailable, stop and report that generation is blocked instead of delivering a fallback asset.
 - Assign every visible element to foreground or background before generation. Keep only the primary subject and subject-attached effects in the foreground.
 - Before generation, verify that `foreground_elements` and `background_elements` do not contain duplicate element identities. Fix the JSON first if the same element appears in both lists.
 - Generate the foreground elements on a uniform adaptive chroma-key background, then locally remove the key screen to create a true-alpha PNG. Do not default blindly to green unless the user explicitly asks for green screen.

@@ -1006,6 +1006,9 @@ JSON 必须记录：
 Place the generated object on a solid pure green chroma key background (#00ff00). No checkerboard pattern, no white background, no black background, no shadows cast onto the background.
 ```
 
+- 使用 Codex 内置图像工具或其他 Host-Native 图像工具时，如果生成结果把棋盘格画进图片、使用白底/黑底、或没有纯色 key 幕，必须判定生成失败并立即用纯色 key 幕提示词重新生成；禁止把棋盘格预览图直接交付，或把棋盘格当作透明背景进行后处理。
+- 内置工具生成的原始文件应保持不动；后处理结果写入任务工作区或用户指定目录。需要定位内置工具生成文件时，优先读取宿主返回的保存路径，再按生成时间确认最新原图，禁止依赖截图或聊天预览图。
+
 后处理顺序必须是：先去绿幕得到真实透明 PNG，再缩放/裁切到目标尺寸，最后验证尺寸和 alpha。参考图模式的目标尺寸通常是参考图尺寸；纯文本模式只有用户明确指定固定尺寸时才需要缩放。不要先缩放绿幕图，否则绿色背景会被重采样到主体边缘。
 
 第 1 步，去绿幕：
@@ -1030,7 +1033,8 @@ powershell -ExecutionPolicy Bypass -File scripts/check_png_transparency.ps1 -Pat
 
 绿幕颜色选择要求：
 - 默认使用 `#00ff00`。
-- 如果主体本身包含大量接近纯绿的区域，改用与主体明显不同的高饱和 key color，并在 JSON 的 `generation_background.color` 中记录。
+- 去绿幕默认必须只移除从画布边缘连通的 key color 区域，不能全局删除所有接近 key color 的像素；这样可保留绿色图标、绿色渐变、内部孔洞或主体内部同色细节。
+- 如果边缘连通 key 幕仍与主体边缘粘连，或主体本身大面积接触画布边缘且接近 key color，改用与主体明显不同的高饱和 key color，并在 JSON 的 `generation_background.color` 中记录。
 - 生成提示词必须要求主体不要带绿色溢色，背景不要有阴影、纹理、渐变或棋盘格。
 
 ## 风格指纹
