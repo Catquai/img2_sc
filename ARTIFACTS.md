@@ -31,8 +31,12 @@ This file lists selected final image outputs that are useful to sync through Git
 
 ## Current Diagnostic Notes
 
-- `app-icon-layer-output/shield-broom-cleaner-512/`: split-layer cleanup/shield/broom app-icon output set kept for workflow review.
-- `app-icon-layer-output/broom-full-set-512/`: split-layer broom app-icon output set kept for workflow review.
+- `test-img/app-icon-layer-output/shield-broom-cleaner-512/`: split-layer cleanup/shield/broom app-icon output set kept for workflow review.
+- `test-img/app-icon-layer-output/broom-full-set-512/`: split-layer broom app-icon output set kept for workflow review.
+- `test-img/app-icon-layer-output/wsapp-reference-only/`: WS app icon reference-only split-layer output set, including foreground, background, composite preview, contact sheet, and white negative icon diagnostics.
+- `test-img/frame_recolor_outputs/reelnow_btn_frame_output_h170/`: ReelNow notification button recolor frame outputs at h170.
+- `test-img/frame_recolor_outputs/reelnow_btn_frame_output_h286/`: ReelNow notification button recolor frame outputs at h286.
+- `test-img/frame_recolor_outputs/reelnow_btn_h286_preview.png`: ReelNow h286 contact preview.
 - `test-img/app-icon-layer-output/rejected_jsonsplit_bad_mask/`: rejected `img2-sc-app-icon` samples produced by a local rough-mask fallback. These failed because the foreground was not a generated keyed subject variant, the background was a placeholder gradient, and the white negative icon became a filled blob without internal negative-space structure.
 - `test-img/app-icon-layer-output/folder_upload/`: current app-icon layer-split diagnostic set for the folder upload icon.
   - `folder_upload_composite_source.png`: accepted composite source used to diagnose foreground consistency.
@@ -71,5 +75,6 @@ Sync human-readable state and useful artifacts through Git:
 - `img2-sc*/scripts/*.ps1`
 - `img2-sc*/scripts/*.py`
 - selected final images in `test-img/`
+- reproducibility helpers in `tools/` when they are not one-off throwaway scripts
 
 Do not try to sync a Codex/chat window as task state.

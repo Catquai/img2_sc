@@ -37,6 +37,13 @@ The skills should support:
 - Added `test-img/app-icon-layer-output/folder_upload_variant_recognizable_20260610/` as the current recognizable repeated-generation folder upload diagnostic set.
 - Refined `img2-sc-app-icon` reference-only variation rules so repeated generations must differ from the previous output without deforming the folder/tray/container until it loses recognition.
 
+### 2026-06-12 Sync Note
+
+- Root-level output images and output folders were moved under `test-img/`.
+- Added `test-img/app-icon-layer-output/wsapp-reference-only/` for WS app icon reference-only split-layer diagnostics.
+- Added ReelNow notification button recolor frame outputs under `test-img/frame_recolor_outputs/`.
+- Kept ReelNow reproduction helpers under `tools/reelnow_btn/` instead of leaving one-off scripts in the repository root.
+
 ### `img2-sc-app-icon`
 
 This skill handles mobile App primary icon generation and split-layer outputs.
@@ -121,6 +128,8 @@ Important scripts are under the matching skill directories.
 - `compose_layer_pair.ps1`
 
 `resize_image.ps1` supports `-ScalePercent`, used for the app-icon 70% foreground scaling rule.
+
+`tools/reelnow_btn/` contains local helper scripts for reproducing the ReelNow notification button frame recolor outputs.
 
 ## Handoff Rule
 
