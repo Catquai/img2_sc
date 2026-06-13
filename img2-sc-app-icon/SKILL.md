@@ -32,6 +32,7 @@ description: 使用 Codex 内置图像生成能力，根据文本描述、移动
    - 仅在用户明确要求时固定像素尺寸、透明 PNG、圆角遮罩或平台规范。
    - 若用户连续使用相同或高度相似的文字再次生成，或指出“变化太小/重新生成/再来一版”，必须把本次请求视为新变体，不得复用上一轮的默认构图模板。必须在 `composition_variation.randomization` 中写入新的构图方案，并至少改变 3 个可见维度：主体视角/旋转、主元素位置或重心、内部文件数量/角度/前后关系、箭头路径/位置/大小、主体配色或背景配色、背景元素家族/光照重心/装饰布局。
    - `text_only + composite` 单张合成图同样必须执行变化约束。不要因为没有参考图就使用固定的“居中黄色文件夹 + 中央箭头 + 蓝色渐变背景”模板；连续生成时应主动切换构图家族，例如改为斜向打开文件夹、侧向文件夹、环绕式还原箭头、角落徽章式还原箭头、文件从一侧弹出、不同背景光带/网格/粒子家族等，同时保持语义清晰。
+   - 当用户文字明确要求“标准文件夹”“造型简洁的文件夹”“打开的文件夹”且未要求托盘/盒子/收纳容器时，JSON 中的文件夹主体必须写成 `simple_flat_standard_file_folder` 或 `standard_open_file_folder`，并在提示词中使用确定短语：`standard tabbed file folder with front flap, back sheet, open top edge, thin paper-folder layers, visible inner fold, and classic folder tab`。禁止写成或暗示 `folder pocket`、`folder pouch`、`open tray`、`box`、`storage container`、`basket`、`deep cavity`、`thick side walls`。若需要表达开口，只能写 `open top edge`、`front flap`、`back sheet`、`inner fold`，不要用容易被模型理解成口袋/托盘的 `pocket` 作为主体身份词。
 
 2. `reference_only`
    - 用户仅提供参考图，或没有提出明确改写要求。
@@ -67,6 +68,8 @@ description: 使用 Codex 内置图像生成能力，根据文本描述、移动
 - 输出模式：默认 `foreground_background_pair`，并附带本地未缩小主体合成检查图 `composite_full_subject_preview`。只有用户明确要求“只要单张合成图/不要拆层”时，才使用 `composite`。若用户只是要求“不要负形图”，仍保持双层输出，只关闭 `white_negative_icon.enabled`。
 - 默认禁止直接让图像模型生成最终合成图。合成图必须由本地脚本把透明前景层叠加到背景层得到；它是验证图/预览图，不是独立模型生成图。
 - 单张合成图 `composite` 仅在用户明确要求时使用；背景必须填满整个 1:1 画布，并且最终图像应为全不透明背景；不要留下透明角、透明洞、空白边或未绘制区域，除非用户明确要求透明 PNG 或参考图本身必须保留透明遮罩。
+- `composite` 单张合成图默认必须是完整方形画布：背景绘制到四个直角画布边缘，不得把背景做成圆角矩形卡片、iOS 圆角图标底板、内缩 tile、带外边距的 app icon mockup 或透明/浅色圆角外框。只有用户明确要求“圆角/圆角图标/透明圆角/保留参考图圆角”时，才允许把圆角烘焙进图像。
+- 提示词中出现 `mobile app icon`、`launcher icon`、`store icon`、`app icon master artwork` 时，必须同时写入负约束：`full square canvas with sharp 90-degree image corners; background reaches all four edges; do not bake rounded corners, rounded-square tile, iOS mask, app-icon mockup, outer margin, or transparent corners`。主体元素可以有圆角，但画布和背景不得有圆角。
 - 派生图标：默认根据带键幕前景层 `foreground_keyed_source` 生成极简白色负形透明图标 `white_negative_icon`；仅在用户明确要求不要负形图时关闭。
 - 画布：必须为 1:1；记录方形、圆角方形、圆形或透明自由形状。
 - 遮罩策略：图中自带圆角，还是由操作系统/商店应用遮罩。
